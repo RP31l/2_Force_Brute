@@ -129,6 +129,7 @@ nb = st.slider("Nombre de meilleurs résultats à afficher", min_value=3, max_va
 
 # Sélection du bloc
 TAILLE_BLOC = 100000
+NB_BLOCS = 1000
 
 cle_depart_str = st.text_input("Clé de départ (8 chiffres)", value="00000001", max_chars=8, placeholder="ex: 00000001")
 
@@ -137,11 +138,11 @@ if len(cle_depart_str) == 8 and cle_depart_str.isdigit():
 else:
     debut = 1
 
-fin = debut + TAILLE_BLOC
 bloc = debut // TAILLE_BLOC
-NB_BLOCS = 1000
+fin = (bloc + 1) * TAILLE_BLOC
 
-st.markdown(f'<div class="bloc-info">🔢 Clés testées : <b>{debut:08d}</b> à <b>{min(fin-1, 99999999):08d}</b> — Bloc {bloc}/{NB_BLOCS-1} — {debut/1000000:.2f}% exploré</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="bloc-info">🔢 Bloc {bloc}/{NB_BLOCS-1} — Clés : <b>{debut:08d}</b> à <b>{fin-1:08d}</b> — {bloc/10:.1f}% exploré</div>', unsafe_allow_html=True)
+st.markdown(f'<p style="color:#8a9ab0;font-size:0.8rem;font-family:Share Tech Mono,monospace;">➡️ Bloc suivant : entrez <b>{fin:08d}</b> comme clé de départ</p>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 with col1:
