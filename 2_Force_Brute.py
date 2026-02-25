@@ -51,7 +51,10 @@ label { color: #ffffff !important; font-size: 0.85rem !important; letter-spacing
 </style>
 """, unsafe_allow_html=True)
 
+# ── CONSTANTES PRÉCALCULÉES ───────────────────────────────────────────────────
 alp = "abcdefghijklmnopqrstuvwxyz "
+ALP_IDX = {c: i for i, c in enumerate(alp)}  # dictionnaire ultra rapide
+ALP_LEN = 27
 TAILLE_BLOC = 1000000
 NB_BLOCS = 100
 
@@ -88,6 +91,8 @@ mots_fr = set([
     "temps","meteo","chaud","froid","neige","vent","orage","aimer","devoir"
 ])
 
+FREQ_FR = set("easitnrul ")
+
 def generer_indices(n, cle_int):
     indices = list(range(n))
     seed(cle_int)
@@ -98,55 +103,44 @@ def generer_indices(n, cle_int):
         i -= 1
     return indices
 
-def dechiffrer(mot, cle):
-    indices = generer_indices(len(mot), int(cle))
-    res = [""] * len(mot)
-    for i in range(len(mot)):
-        c = mot[indices[i]].lower()
-        if c in alp:
-            dec = int(cle[i % 8])
-            idx = alp.index(c)
-            res[i] = alp[(idx - dec) % 27]
-        else:
-            res[i] = mot[indices[i]]
-    return "".join(res)
-
 def score_francais(texte):
     score = 0
-    for mot in texte.lower().split():
+    for mot in texte.split():
         if mot in mots_fr:
             score += 3
-    for c in texte.lower():
-        if c in "easitnrul":
+    for c in texte:
+        if c in FREQ_FR:
             score += 0.1
     return round(score, 1)
 
-# Précalcul des décalages pour accélérer
-def precalcul_decalages(cle, n):
-    return [int(cle[i % 8]) for i in range(n)]
-
-def analyser_bloc_rapide(debut, msg, nb):
-    fin = min(debut + TAILLE_BLOC, 100000000)
+def analyser_bloc(debut, msg, nb):
     n = len(msg)
+    fin = min(debut + TAILLE_BLOC, 100000000)
+    # Précalcul du message en indices pour éviter répétition
+    msg_lower = msg.lower()
+    # Précalcul des décalages pour chaque position selon chaque chiffre 0-9
     resultats = []
+
     for cle_int in range(max(1, debut), fin):
         cle = str(cle_int).zfill(8)
-        # Précalcul des indices une seule fois par clé
+        # Précalcul des décalages pour cette clé
+        dec = [int(cle[i % 8]) for i in range(n)]
+        # Génération des indices
         indices = generer_indices(n, cle_int)
-        res = [""] * n
-        valide = True
+        # Déchiffrement vectorisé
+        res = []
         for i in range(n):
-            c = msg[indices[i]].lower()
-            if c in alp:
-                dec = int(cle[i % 8])
-                idx = alp.index(c)
-                res[i] = alp[(idx - dec) % 27]
+            c = msg_lower[indices[i]]
+            if c in ALP_IDX:
+                res.append(alp[(ALP_IDX[c] - dec[i]) % ALP_LEN])
             else:
-                res[i] = msg[indices[i]]
+                res.append(msg[indices[i]])
         texte = "".join(res)
+        # Score rapide — vérifie d'abord les fréquences avant les mots
         s = score_francais(texte)
         if s > 0:
             resultats.append((s, cle, texte))
+
     resultats.sort(reverse=True)
     return resultats[:nb]
 
@@ -192,8 +186,8 @@ with col1:
         else:
             st.session_state.bloc_debut = debut
             with st.spinner(f"Test des clés {debut:08d} à {fin-1:08d}..."):
-                top = analyser_bloc_rapide(debut, msg, nb)
-            st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ 100 000 clés testées</p>", unsafe_allow_html=True)
+                top = analyser_bloc(debut, msg, nb)
+            st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ 1 000 000 clés testées</p>", unsafe_allow_html=True)
             afficher_resultats(top)
 
 with col2:
@@ -204,6 +198,6 @@ with col2:
             prochain = debut + TAILLE_BLOC
             st.session_state.bloc_debut = prochain
             with st.spinner(f"Test des clés {prochain:08d} à {prochain+TAILLE_BLOC-1:08d}..."):
-                top = analyser_bloc_rapide(prochain, msg, nb)
+                top = analyser_bloc(prochain, msg, nb)
             st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ Bloc {prochain // TAILLE_BLOC} testé</p>", unsafe_allow_html=True)
             afficher_resultats(top)
