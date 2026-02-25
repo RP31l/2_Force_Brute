@@ -51,7 +51,7 @@ label { color: #ffffff !important; font-size: 0.85rem !important; letter-spacing
 </style>
 """, unsafe_allow_html=True)
 
-alp = "abcdefghijklmnopqrstuvwxyz"
+alp = "abcdefghijklmnopqrstuvwxyz "
 TAILLE_BLOC = 100000
 NB_BLOCS = 1000
 
@@ -69,12 +69,10 @@ def dechiffrer(mot, cle):
     indices = generer_indices(mot, int(cle))
     res = [""] * len(mot)
     for i, l in enumerate(mot):
-        if mot[indices[i]] == " ":
-            res[i] = " "
-        elif mot[indices[i]].lower() in alp:
+        if mot[indices[i]].lower() in alp:
             dec = int(cle[i % 8])
             idx = alp.index(mot[indices[i]].lower())
-            nl = alp[(idx - dec) % 26]
+            nl = alp[(idx - dec) % 27]
             res[i] = nl
         else:
             res[i] = mot[indices[i]]
