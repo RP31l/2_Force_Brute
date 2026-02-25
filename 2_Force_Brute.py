@@ -192,11 +192,17 @@ st.markdown(f'<div class="bloc-info">🔢 Bloc {bloc}/{NB_BLOCS-1} — Clés : <
 
 col1, col2 = st.columns(2)
 
+if "auto" not in st.session_state:
+    st.session_state.auto = False
+
+col1, col2, col3 = st.columns(3)
+
 with col1:
     if st.button("🚀 ANALYSER CE BLOC"):
         if not msg:
             st.error("Entrez un message chiffré !")
         else:
+            st.session_state.auto = False
             st.session_state.bloc_debut = debut
             top = analyser_avec_progression(debut, msg, nb)
             st.success("✅ 100 000 clés testées !")
@@ -207,8 +213,33 @@ with col2:
         if not msg:
             st.error("Entrez un message chiffré !")
         else:
+            st.session_state.auto = False
             prochain = debut + TAILLE_BLOC
             st.session_state.bloc_debut = prochain
             top = analyser_avec_progression(prochain, msg, nb)
             st.success(f"✅ Bloc {prochain // TAILLE_BLOC} testé !")
             afficher_resultats(top)
+
+with col3:
+    if st.button("🤖 AUTO" if not st.session_state.auto else "⛔ STOP AUTO"):
+        if not msg:
+            st.error("Entrez un message chiffré !")
+        else:
+            st.session_state.auto = not st.session_state.auto
+
+if st.session_state.auto and msg:
+    st.warning("⚙️ Mode automatique actif — cliquez STOP AUTO pour arrêter")
+    bloc_auto = debut
+    while st.session_state.auto and bloc_auto < 100000000:
+        top = analyser_avec_progression(bloc_auto, msg, nb)
+        st.success(f"✅ Bloc {bloc_auto // TAILLE_BLOC} terminé !")
+        if top and top[0][0] > 5:
+            st.balloons()
+            st.markdown(f"<p style='color:#00ff88;font-size:1.2rem;font-weight:700;'>🎯 RÉSULTAT PROBABLE TROUVÉ !</p>", unsafe_allow_html=True)
+            afficher_resultats(top)
+            st.session_state.auto = False
+            break
+        elif top:
+            afficher_resultats(top)
+        bloc_auto += TAILLE_BLOC
+        st.session_state.bloc_debut = bloc_auto
