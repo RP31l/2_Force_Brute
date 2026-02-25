@@ -128,8 +128,8 @@ msg = st.text_input("Message chiffré à analyser", placeholder="Collez votre me
 nb = st.slider("Nombre de meilleurs résultats à afficher", min_value=3, max_value=20, value=5)
 
 # Sélection du bloc
-TAILLE_BLOC = 100000
-NB_BLOCS = 1000  # 100 000 000 / 100 000 = 1000 blocs
+TAILLE_BLOC = 1000000
+NB_BLOCS = 100  # 100 000 000 / 100 000 = 1000 blocs
 
 bloc = st.number_input(
     f"Bloc à tester (0 à {NB_BLOCS-1}) — chaque bloc = 100 000 clés",
