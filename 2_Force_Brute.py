@@ -55,8 +55,8 @@ label { color: #ffffff !important; font-size: 0.85rem !important; letter-spacing
 alp = "abcdefghijklmnopqrstuvwxyz "
 ALP_IDX = {c: i for i, c in enumerate(alp)}  # dictionnaire ultra rapide
 ALP_LEN = 27
-TAILLE_BLOC = 1000000
-NB_BLOCS = 100
+TAILLE_BLOC = 100000
+NB_BLOCS = 1000
 
 mots_fr = set([
     "le","la","les","de","du","des","un","une","et","est","en","au","aux",
@@ -179,15 +179,46 @@ st.markdown(f'<div class="bloc-info">🔢 Bloc {bloc}/{NB_BLOCS-1} — Clés : <
 
 col1, col2 = st.columns(2)
 
+def analyser_avec_progression(debut, msg, nb):
+    fin = min(debut + TAILLE_BLOC, 100000000)
+    n = len(msg)
+    msg_idx, msg_in_alp = preparer_message(msg)
+    resultats = []
+    barre = st.progress(0)
+    info = st.empty()
+    total = fin - max(1, debut)
+    for idx, cle_int in enumerate(range(max(1, debut), fin)):
+        cle = str(cle_int).zfill(8)
+        dec = [int(cle[i % 8]) for i in range(n)]
+        indices = generer_indices(n, cle_int)
+        res = [None] * n
+        for i in range(n):
+            src = indices[i]
+            if msg_in_alp[src]:
+                res[i] = alp[(msg_idx[src] - dec[i]) % N_ALP]
+            else:
+                res[i] = msg[src]
+        texte = "".join(res)
+        s = score_francais(texte)
+        if s > 0:
+            resultats.append((s, cle, texte))
+        if idx % 5000 == 0:
+            pct = idx / total
+            barre.progress(pct)
+            info.markdown(f"<p style='color:#8a9ab0;font-size:0.8rem;font-family:Share Tech Mono,monospace;'>Cle {cle_int:08d} — {pct*100:.1f}% — {len(resultats)} resultats</p>", unsafe_allow_html=True)
+    barre.progress(1.0)
+    info.empty()
+    resultats.sort(reverse=True)
+    return resultats[:nb]
+
 with col1:
     if st.button("🚀 ANALYSER CE BLOC"):
         if not msg:
             st.error("Entrez un message chiffré !")
         else:
             st.session_state.bloc_debut = debut
-            with st.spinner(f"Test des clés {debut:08d} à {fin-1:08d}..."):
-                top = analyser_bloc(debut, msg, nb)
-            st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ 1 000 000 clés testées</p>", unsafe_allow_html=True)
+            top = analyser_avec_progression(debut, msg, nb)
+            st.success("✅ 100 000 clés testées !")
             afficher_resultats(top)
 
 with col2:
@@ -197,7 +228,6 @@ with col2:
         else:
             prochain = debut + TAILLE_BLOC
             st.session_state.bloc_debut = prochain
-            with st.spinner(f"Test des clés {prochain:08d} à {prochain+TAILLE_BLOC-1:08d}..."):
-                top = analyser_bloc(prochain, msg, nb)
-            st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ Bloc {prochain // TAILLE_BLOC} testé</p>", unsafe_allow_html=True)
+            top = analyser_avec_progression(prochain, msg, nb)
+            st.success(f"✅ Bloc {prochain // TAILLE_BLOC} testé !")
             afficher_resultats(top)
