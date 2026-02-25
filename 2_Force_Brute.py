@@ -119,14 +119,12 @@ def score_simple(texte):
 st.markdown("<h1>🤖 FORCE BRUTE IA</h1>", unsafe_allow_html=True)
 st.markdown('<p style="text-align:center;color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.85rem;letter-spacing:0.2em;">ANALYSE PAR INTELLIGENCE ARTIFICIELLE</p>', unsafe_allow_html=True)
 
-api_key = st.text_input("Clé API Anthropic", placeholder="sk-ant-...", type="password")
+api_key = st.secrets["ANTHROPIC_API_KEY"]
 msg = st.text_input("Message chiffré à analyser", placeholder="Collez votre message chiffré ici...")
 
 if st.button("🚀 LANCER L'ANALYSE IA"):
     if not msg:
         st.error("Entrez un message chiffré !")
-    elif not api_key:
-        st.error("Entrez votre clé API Anthropic !")
     else:
         with st.spinner("Etape 1/2 — Test de toutes les cles..."):
             resultats = []
