@@ -52,13 +52,46 @@ label { color: #ffffff !important; font-size: 0.85rem !important; letter-spacing
 """, unsafe_allow_html=True)
 
 alp = "abcdefghijklmnopqrstuvwxyz "
-TAILLE_BLOC = 100000
-NB_BLOCS = 1000
+TAILLE_BLOC = 1000000
+NB_BLOCS = 100
 
-def generer_indices(mot, cle_int):
-    indices = list(range(len(mot)))
+mots_fr = set([
+    "le","la","les","de","du","des","un","une","et","est","en","au","aux",
+    "je","tu","il","elle","nous","vous","ils","elles","me","te","se","y",
+    "que","qui","quoi","dont","ou","ne","pas","plus","jamais","rien","tout",
+    "mon","ton","son","ma","ta","sa","notre","votre","leur","mes","tes","ses",
+    "ce","cet","cette","ces","cela","ca","ici","voici","voila",
+    "avec","pour","sans","sous","sur","dans","par","entre","vers","chez",
+    "mais","donc","or","ni","car","si","puis","alors","ainsi",
+    "bonjour","bonsoir","salut","merci","oui","non","bien","mal","tres",
+    "avoir","etre","faire","dire","aller","voir","savoir","pouvoir","vouloir",
+    "venir","partir","prendre","donner","mettre","passer","tenir","rester",
+    "manger","boire","dormir","parler","ecrire","lire","jouer","travailler",
+    "maman","papa","frere","soeur","ami","amie","copain","copine","famille",
+    "maison","ecole","classe","salle","chambre","cuisine","jardin","rue",
+    "chat","chien","oiseau","poisson","lapin","cheval","vache","cochon",
+    "jour","nuit","matin","soir","midi","heure","minute","seconde","semaine",
+    "monde","pays","ville","village","mer","montagne","foret","riviere",
+    "rouge","bleu","vert","jaune","noir","blanc","gris","rose","orange",
+    "grand","petit","gros","mince","beau","bon","mauvais","nouveau","vieux",
+    "homme","femme","enfant","garcon","fille","bebe","adulte","personne",
+    "eau","feu","air","terre","ciel","soleil","lune","etoile","nuage","pluie",
+    "pain","lait","fromage","viande","fruit","legume","gateau","sucre","sel",
+    "table","chaise","lit","porte","fenetre","mur","sol","plafond","escalier",
+    "voiture","velo","bus","train","avion","bateau","moto","main","tete",
+    "bras","jambe","oeil","nez","bouche","oreille","dos","ventre",
+    "livre","cahier","stylo","crayon","gomme","regle","cartable","sac",
+    "telephone","ordinateur","television","radio","internet","message","photo",
+    "sport","football","basket","tennis","natation","course","danse","musique",
+    "france","paris","lyon","marseille","bordeaux","nice","nantes","strasbourg",
+    "argent","euro","prix","achat","vente","magasin","marche","boutique",
+    "temps","meteo","chaud","froid","neige","vent","orage","aimer","devoir"
+])
+
+def generer_indices(n, cle_int):
+    indices = list(range(n))
     seed(cle_int)
-    i = len(indices) - 1
+    i = n - 1
     while i > 0:
         j = randint(0, i)
         indices[i], indices[j] = indices[j], indices[i]
@@ -66,51 +99,19 @@ def generer_indices(mot, cle_int):
     return indices
 
 def dechiffrer(mot, cle):
-    indices = generer_indices(mot, int(cle))
+    indices = generer_indices(len(mot), int(cle))
     res = [""] * len(mot)
-    for i, l in enumerate(mot):
-        if mot[indices[i]].lower() in alp:
+    for i in range(len(mot)):
+        c = mot[indices[i]].lower()
+        if c in alp:
             dec = int(cle[i % 8])
-            idx = alp.index(mot[indices[i]].lower())
-            nl = alp[(idx - dec) % 27]
-            res[i] = nl
+            idx = alp.index(c)
+            res[i] = alp[(idx - dec) % 27]
         else:
             res[i] = mot[indices[i]]
     return "".join(res)
 
 def score_francais(texte):
-    mots_fr = [
-        "le","la","les","de","du","des","un","une","et","est","en","au","aux",
-        "je","tu","il","elle","nous","vous","ils","elles","me","te","se","y",
-        "que","qui","quoi","dont","ou","ne","pas","plus","jamais","rien","tout",
-        "mon","ton","son","ma","ta","sa","notre","votre","leur","mes","tes","ses",
-        "ce","cet","cette","ces","cela","ca","ici","voici","voila",
-        "avec","pour","sans","sous","sur","dans","par","entre","vers","chez",
-        "mais","donc","or","ni","car","si","puis","alors","ainsi",
-        "bonjour","bonsoir","salut","merci","oui","non","bien","mal","tres",
-        "avoir","etre","faire","dire","aller","voir","savoir","pouvoir","vouloir",
-        "venir","partir","prendre","donner","mettre","passer","tenir","rester",
-        "manger","boire","dormir","parler","ecrire","lire","jouer","travailler",
-        "maman","papa","frere","soeur","ami","amie","copain","copine","famille",
-        "maison","ecole","classe","salle","chambre","cuisine","jardin","rue",
-        "chat","chien","oiseau","poisson","lapin","cheval","vache","cochon",
-        "jour","nuit","matin","soir","midi","heure","minute","seconde","semaine",
-        "monde","pays","ville","village","mer","montagne","foret","riviere",
-        "rouge","bleu","vert","jaune","noir","blanc","gris","rose","orange",
-        "grand","petit","gros","mince","beau","bon","mauvais","nouveau","vieux",
-        "homme","femme","enfant","garcon","fille","bebe","adulte","personne",
-        "eau","feu","air","terre","ciel","soleil","lune","etoile","nuage","pluie",
-        "pain","lait","fromage","viande","fruit","legume","gateau","sucre","sel",
-        "table","chaise","lit","porte","fenetre","mur","sol","plafond","escalier",
-        "voiture","velo","bus","train","avion","bateau","moto","main","tete",
-        "bras","jambe","oeil","nez","bouche","oreille","dos","ventre",
-        "livre","cahier","stylo","crayon","gomme","regle","cartable","sac",
-        "telephone","ordinateur","television","radio","internet","message","photo",
-        "sport","football","basket","tennis","natation","course","danse","musique",
-        "france","paris","lyon","marseille","bordeaux","nice","nantes","strasbourg",
-        "argent","euro","prix","achat","vente","magasin","marche","boutique",
-        "temps","meteo","chaud","froid","neige","vent","orage","aimer","devoir"
-    ]
     score = 0
     for mot in texte.lower().split():
         if mot in mots_fr:
@@ -120,15 +121,32 @@ def score_francais(texte):
             score += 0.1
     return round(score, 1)
 
-def analyser_bloc(debut, msg, nb):
+# Précalcul des décalages pour accélérer
+def precalcul_decalages(cle, n):
+    return [int(cle[i % 8]) for i in range(n)]
+
+def analyser_bloc_rapide(debut, msg, nb):
     fin = min(debut + TAILLE_BLOC, 100000000)
+    n = len(msg)
     resultats = []
     for cle_int in range(max(1, debut), fin):
         cle = str(cle_int).zfill(8)
-        res = dechiffrer(msg, cle)
-        s = score_francais(res)
+        # Précalcul des indices une seule fois par clé
+        indices = generer_indices(n, cle_int)
+        res = [""] * n
+        valide = True
+        for i in range(n):
+            c = msg[indices[i]].lower()
+            if c in alp:
+                dec = int(cle[i % 8])
+                idx = alp.index(c)
+                res[i] = alp[(idx - dec) % 27]
+            else:
+                res[i] = msg[indices[i]]
+        texte = "".join(res)
+        s = score_francais(texte)
         if s > 0:
-            resultats.append((s, cle, res))
+            resultats.append((s, cle, texte))
     resultats.sort(reverse=True)
     return resultats[:nb]
 
@@ -153,7 +171,6 @@ st.markdown('<p style="text-align:center;color:#8a9ab0;font-family:Share Tech Mo
 
 msg = st.text_input("Message chiffré à analyser", placeholder="Collez votre message chiffré ici...")
 nb = st.slider("Nombre de meilleurs résultats à afficher", min_value=3, max_value=20, value=5)
-
 cle_depart_str = st.text_input("Clé de départ (8 chiffres)", value=str(st.session_state.bloc_debut).zfill(8), max_chars=8, placeholder="ex: 00000001")
 
 if len(cle_depart_str) == 8 and cle_depart_str.isdigit():
@@ -175,7 +192,7 @@ with col1:
         else:
             st.session_state.bloc_debut = debut
             with st.spinner(f"Test des clés {debut:08d} à {fin-1:08d}..."):
-                top = analyser_bloc(debut, msg, nb)
+                top = analyser_bloc_rapide(debut, msg, nb)
             st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ 100 000 clés testées</p>", unsafe_allow_html=True)
             afficher_resultats(top)
 
@@ -186,7 +203,7 @@ with col2:
         else:
             prochain = debut + TAILLE_BLOC
             st.session_state.bloc_debut = prochain
-            with st.spinner(f"Test des clés {prochain:08d} à {prochain + TAILLE_BLOC - 1:08d}..."):
-                top = analyser_bloc(prochain, msg, nb)
+            with st.spinner(f"Test des clés {prochain:08d} à {prochain+TAILLE_BLOC-1:08d}..."):
+                top = analyser_bloc_rapide(prochain, msg, nb)
             st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ Bloc {prochain // TAILLE_BLOC} testé</p>", unsafe_allow_html=True)
             afficher_resultats(top)
