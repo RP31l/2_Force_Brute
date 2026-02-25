@@ -43,6 +43,11 @@ label { color: #ffffff !important; font-size: 0.85rem !important; letter-spacing
     border-radius: 4px; padding: 0.1rem 0.5rem; font-size: 0.75rem;
     color: #00ff88; margin-left: 0.5rem;
 }
+.bloc-info {
+    background: #0d1b2a; border: 1px solid #00d4ff33; border-left: 4px solid #00d4ff;
+    border-radius: 6px; padding: 0.8rem 1.2rem; font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem; color: #00d4ff; margin-bottom: 1rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -117,38 +122,57 @@ def score_francais(texte):
 
 # ── INTERFACE ────────────────────────────────────────────────────────────────
 st.markdown("<h1>🔍 FORCE BRUTE</h1>", unsafe_allow_html=True)
-st.markdown('<p style="text-align:center;color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.85rem;letter-spacing:0.2em;">DETECTION AUTOMATIQUE DE CLE</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align:center;color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.85rem;letter-spacing:0.2em;">DETECTION AUTOMATIQUE DE CLE — 100 MILLIONS DE COMBINAISONS</p>', unsafe_allow_html=True)
 
 msg = st.text_input("Message chiffré à analyser", placeholder="Collez votre message chiffré ici...")
 nb = st.slider("Nombre de meilleurs résultats à afficher", min_value=3, max_value=20, value=5)
 
-if st.button("🚀 LANCER L'ANALYSE"):
-    if not msg:
-        st.error("Entrez un message chiffré !")
-    else:
-        with st.spinner("Analyse en cours... test de 10000 clés"):
-            resultats = []
-            for cle_int in range(10000):
-                cle = str(cle_int).zfill(4) + str(cle_int).zfill(4)
-                try:
-                    res = dechiffrer(msg, cle)
-                    s = score_francais(res)
-                    if s > 0:
-                        resultats.append((s, cle, res))
-                except:
-                    pass
-            resultats.sort(reverse=True)
-            top = resultats[:nb]
+# Sélection du bloc
+TAILLE_BLOC = 100000
+NB_BLOCS = 1000  # 100 000 000 / 100 000 = 1000 blocs
 
-        st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ Analyse terminée — {len(resultats)} résultats pertinents trouvés</p>", unsafe_allow_html=True)
-        st.markdown("---")
+bloc = st.number_input(
+    f"Bloc à tester (0 à {NB_BLOCS-1}) — chaque bloc = 100 000 clés",
+    min_value=0, max_value=NB_BLOCS-1, value=0, step=1
+)
 
-        if top:
-            st.markdown("<p style='color:#00ff88;font-weight:700;letter-spacing:0.2em;'>🏆 MEILLEURS RÉSULTATS :</p>", unsafe_allow_html=True)
-            for i, (score, cle, res) in enumerate(top):
-                if i == 0:
-                    st.markdown(f'<div class="result-found">🥇 Clé : <b>{cle}</b> <span class="score-badge">Score {score}</span><br>{res}</div>', unsafe_allow_html=True)
-                else:
-                    st.markdown(f'<div class="result-normal">#{i+1} Clé : {cle} | Score {score} | {res}</div>', unsafe_allow_html=True)
+debut = bloc * TAILLE_BLOC
+fin = debut + TAILLE_BLOC
+
+st.markdown(f'<div class="bloc-info">🔢 Bloc {bloc}/{NB_BLOCS-1} — Clés testées : <b>{debut:,}</b> à <b>{fin-1:,}</b> sur 99 999 999</div>', unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("🚀 ANALYSER CE BLOC"):
+        if not msg:
+            st.error("Entrez un message chiffré !")
         else:
-            st.warning("Aucun résultat trouvé. Le message est peut-être en anglais ou dans une autre langue.")
+            with st.spinner(f"Test des clés {debut:,} à {fin-1:,}..."):
+                resultats = []
+                for cle_int in range(debut, fin):
+                    cle = str(cle_int).zfill(8)
+                    try:
+                        res = dechiffrer(msg, cle)
+                        s = score_francais(res)
+                        if s > 0:
+                            resultats.append((s, cle, res))
+                    except:
+                        pass
+                resultats.sort(reverse=True)
+                top = resultats[:nb]
+
+            st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ {TAILLE_BLOC:,} clés testées — {len(resultats)} résultats pertinents</p>", unsafe_allow_html=True)
+
+            if top:
+                st.markdown("<p style='color:#00ff88;font-weight:700;letter-spacing:0.2em;'>🏆 MEILLEURS RÉSULTATS :</p>", unsafe_allow_html=True)
+                for i, (score, cle, res) in enumerate(top):
+                    if i == 0:
+                        st.markdown(f'<div class="result-found">🥇 Clé : <b>{cle}</b> <span class="score-badge">Score {score}</span><br>{res}</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown(f'<div class="result-normal">#{i+1} Clé : {cle} | Score {score} | {res}</div>', unsafe_allow_html=True)
+            else:
+                st.warning("Rien trouvé dans ce bloc. Essayez le suivant !")
+                st.info(f"👉 Passez au bloc {bloc+1}")
+
+with col2:
+    st.markdown(f'<div style="background:#0d1b2a;border:1px solid #1e3a5f;border-radius:6px;padding:0.75rem;font-family:Share Tech Mono,monospace;font-size:0.8rem;color:#8a9ab0;margin-top:0.5rem;">📊 Progression<br>{bloc}/{NB_BLOCS-1} blocs<br>{bloc/10:.1f}% exploré</div>', unsafe_allow_html=True)
