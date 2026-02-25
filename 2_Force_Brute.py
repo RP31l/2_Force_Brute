@@ -128,18 +128,20 @@ msg = st.text_input("Message chiffré à analyser", placeholder="Collez votre me
 nb = st.slider("Nombre de meilleurs résultats à afficher", min_value=3, max_value=20, value=5)
 
 # Sélection du bloc
-TAILLE_BLOC = 1000000
-NB_BLOCS = 100  # 100 000 000 / 100 000 = 1000 blocs
+TAILLE_BLOC = 100000
 
-bloc = st.number_input(
-    f"Bloc à tester (0 à {NB_BLOCS-1}) — chaque bloc = 100 000 clés",
-    min_value=0, max_value=NB_BLOCS-1, value=0, step=1
-)
+cle_depart_str = st.text_input("Clé de départ (8 chiffres)", value="00000001", max_chars=8, placeholder="ex: 00000001")
 
-debut = bloc * TAILLE_BLOC
+if len(cle_depart_str) == 8 and cle_depart_str.isdigit():
+    debut = int(cle_depart_str)
+else:
+    debut = 1
+
 fin = debut + TAILLE_BLOC
+bloc = debut // TAILLE_BLOC
+NB_BLOCS = 1000
 
-st.markdown(f'<div class="bloc-info">🔢 Bloc {bloc}/{NB_BLOCS-1} — Clés testées : <b>{debut:,}</b> à <b>{fin-1:,}</b> sur 99 999 999</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="bloc-info">🔢 Clés testées : <b>{debut:08d}</b> à <b>{min(fin-1, 99999999):08d}</b> — Bloc {bloc}/{NB_BLOCS-1} — {debut/1000000:.2f}% exploré</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 with col1:
@@ -149,7 +151,7 @@ with col1:
         else:
             with st.spinner(f"Test des clés {debut:,} à {fin-1:,}..."):
                 resultats = []
-                for cle_int in range(debut, fin):
+                for cle_int in range(max(1, debut), min(fin, 100000000)):
                     cle = str(cle_int).zfill(8)
                     try:
                         res = dechiffrer(msg, cle)
