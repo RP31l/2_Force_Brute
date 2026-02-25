@@ -51,12 +51,13 @@ label { color: #ffffff !important; font-size: 0.85rem !important; letter-spacing
 </style>
 """, unsafe_allow_html=True)
 
-# ── CONSTANTES PRÉCALCULÉES ───────────────────────────────────────────────────
+# ── CONSTANTES ────────────────────────────────────────────────────────────────
 alp = "abcdefghijklmnopqrstuvwxyz "
-ALP_IDX = {c: i for i, c in enumerate(alp)}  # dictionnaire ultra rapide
-ALP_LEN = 27
+ALP_IDX = {c: i for i, c in enumerate(alp)}
+N_ALP = 27
 TAILLE_BLOC = 100000
 NB_BLOCS = 1000
+FREQ_FR = set("easitnrul")
 
 mots_fr = set([
     "le","la","les","de","du","des","un","une","et","est","en","au","aux",
@@ -91,8 +92,7 @@ mots_fr = set([
     "temps","meteo","chaud","froid","neige","vent","orage","aimer","devoir"
 ])
 
-FREQ_FR = set("easitnrul ")
-
+# ── FONCTIONS (dans le bon ordre) ─────────────────────────────────────────────
 def generer_indices(n, cle_int):
     indices = list(range(n))
     seed(cle_int)
@@ -102,6 +102,18 @@ def generer_indices(n, cle_int):
         indices[i], indices[j] = indices[j], indices[i]
         i -= 1
     return indices
+
+def preparer_message(msg):
+    msg_idx = []
+    msg_in_alp = []
+    for c in msg.lower():
+        if c in ALP_IDX:
+            msg_idx.append(ALP_IDX[c])
+            msg_in_alp.append(True)
+        else:
+            msg_idx.append(-1)
+            msg_in_alp.append(False)
+    return msg_idx, msg_in_alp
 
 def score_francais(texte):
     score = 0
@@ -113,34 +125,35 @@ def score_francais(texte):
             score += 0.1
     return round(score, 1)
 
-def analyser_bloc(debut, msg, nb):
-    n = len(msg)
+def analyser_avec_progression(debut, msg, nb):
     fin = min(debut + TAILLE_BLOC, 100000000)
-    # Précalcul du message en indices pour éviter répétition
-    msg_lower = msg.lower()
-    # Précalcul des décalages pour chaque position selon chaque chiffre 0-9
+    n = len(msg)
+    msg_idx, msg_in_alp = preparer_message(msg)
     resultats = []
-
-    for cle_int in range(max(1, debut), fin):
+    barre = st.progress(0)
+    info = st.empty()
+    total = fin - max(1, debut)
+    for idx, cle_int in enumerate(range(max(1, debut), fin)):
         cle = str(cle_int).zfill(8)
-        # Précalcul des décalages pour cette clé
         dec = [int(cle[i % 8]) for i in range(n)]
-        # Génération des indices
         indices = generer_indices(n, cle_int)
-        # Déchiffrement vectorisé
-        res = []
+        res = [None] * n
         for i in range(n):
-            c = msg_lower[indices[i]]
-            if c in ALP_IDX:
-                res.append(alp[(ALP_IDX[c] - dec[i]) % ALP_LEN])
+            src = indices[i]
+            if msg_in_alp[src]:
+                res[i] = alp[(msg_idx[src] - dec[i]) % N_ALP]
             else:
-                res.append(msg[indices[i]])
+                res[i] = msg[src]
         texte = "".join(res)
-        # Score rapide — vérifie d'abord les fréquences avant les mots
         s = score_francais(texte)
         if s > 0:
             resultats.append((s, cle, texte))
-
+        if idx % 5000 == 0:
+            pct = idx / total
+            barre.progress(pct)
+            info.markdown(f"<p style='color:#8a9ab0;font-size:0.8rem;font-family:Share Tech Mono,monospace;'>Cle {cle_int:08d} — {pct*100:.1f}% — {len(resultats)} resultats</p>", unsafe_allow_html=True)
+    barre.progress(1.0)
+    info.empty()
     resultats.sort(reverse=True)
     return resultats[:nb]
 
@@ -178,38 +191,6 @@ bloc = debut // TAILLE_BLOC
 st.markdown(f'<div class="bloc-info">🔢 Bloc {bloc}/{NB_BLOCS-1} — Clés : <b>{debut:08d}</b> à <b>{fin-1:08d}</b> — {bloc/10:.1f}% exploré</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
-
-def analyser_avec_progression(debut, msg, nb):
-    fin = min(debut + TAILLE_BLOC, 100000000)
-    n = len(msg)
-    msg_idx, msg_in_alp = preparer_message(msg)
-    resultats = []
-    barre = st.progress(0)
-    info = st.empty()
-    total = fin - max(1, debut)
-    for idx, cle_int in enumerate(range(max(1, debut), fin)):
-        cle = str(cle_int).zfill(8)
-        dec = [int(cle[i % 8]) for i in range(n)]
-        indices = generer_indices(n, cle_int)
-        res = [None] * n
-        for i in range(n):
-            src = indices[i]
-            if msg_in_alp[src]:
-                res[i] = alp[(msg_idx[src] - dec[i]) % N_ALP]
-            else:
-                res[i] = msg[src]
-        texte = "".join(res)
-        s = score_francais(texte)
-        if s > 0:
-            resultats.append((s, cle, texte))
-        if idx % 5000 == 0:
-            pct = idx / total
-            barre.progress(pct)
-            info.markdown(f"<p style='color:#8a9ab0;font-size:0.8rem;font-family:Share Tech Mono,monospace;'>Cle {cle_int:08d} — {pct*100:.1f}% — {len(resultats)} resultats</p>", unsafe_allow_html=True)
-    barre.progress(1.0)
-    info.empty()
-    resultats.sort(reverse=True)
-    return resultats[:nb]
 
 with col1:
     if st.button("🚀 ANALYSER CE BLOC"):
