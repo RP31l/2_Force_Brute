@@ -1,8 +1,7 @@
 import streamlit as st
 from random import seed, randint
-import anthropic
 
-st.set_page_config(page_title="Force Brute IA", page_icon="🤖", layout="centered")
+st.set_page_config(page_title="Force Brute", page_icon="🔍", layout="centered")
 
 st.markdown("""
 <style>
@@ -28,17 +27,21 @@ label { color: #ffffff !important; font-size: 0.85rem !important; letter-spacing
     font-weight: 700; font-size: 1rem; letter-spacing: 0.15em;
     padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem;
 }
-.result-box {
+.result-found {
     background: linear-gradient(135deg, #0a2a0a, #0d3b0d);
     border: 2px solid #00ff88; border-radius: 8px;
-    padding: 1.5rem; font-family: 'Share Tech Mono', monospace;
-    font-size: 1rem; color: #00ff88; margin-top: 1rem;
-    letter-spacing: 0.05em; line-height: 1.8; white-space: pre-wrap;
+    padding: 1rem 1.5rem; font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem; color: #00ff88; margin-bottom: 0.5rem; letter-spacing: 0.1em;
 }
-.candidate-box {
+.result-normal {
     background: #0d1b2a; border: 1px solid #1e3a5f; border-radius: 6px;
     padding: 0.6rem 1rem; font-family: 'Share Tech Mono', monospace;
     font-size: 0.85rem; color: #8a9ab0; margin-bottom: 0.3rem;
+}
+.score-badge {
+    display: inline-block; background: #00ff8833; border: 1px solid #00ff88;
+    border-radius: 4px; padding: 0.1rem 0.5rem; font-size: 0.75rem;
+    color: #00ff88; margin-left: 0.5rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -70,41 +73,38 @@ def dechiffrer(mot, cle):
             res[i] = mot[indices[i]]
     return "".join(res)
 
-def score_simple(texte):
+def score_francais(texte):
     mots_fr = [
         "le","la","les","de","du","des","un","une","et","est","en","au","aux",
         "je","tu","il","elle","nous","vous","ils","elles","me","te","se","y",
         "que","qui","quoi","dont","ou","ne","pas","plus","jamais","rien","tout",
         "mon","ton","son","ma","ta","sa","notre","votre","leur","mes","tes","ses",
-        "ce","cet","cette","ces","cela","ca","ici","la","voici","voila",
+        "ce","cet","cette","ces","cela","ca","ici","voici","voila",
         "avec","pour","sans","sous","sur","dans","par","entre","vers","chez",
-        "mais","ou","donc","or","ni","car","si","puis","alors","ainsi","donc",
-        "bonjour","bonsoir","salut","merci","svp","stp","oui","non","peut","etre",
-        "bien","mal","tres","assez","trop","peu","beaucoup","encore","toujours",
+        "mais","donc","or","ni","car","si","puis","alors","ainsi",
+        "bonjour","bonsoir","salut","merci","oui","non","bien","mal","tres",
         "avoir","etre","faire","dire","aller","voir","savoir","pouvoir","vouloir",
         "venir","partir","prendre","donner","mettre","passer","tenir","rester",
         "manger","boire","dormir","parler","ecrire","lire","jouer","travailler",
-        "aimer","vouloir","devoir","falloir","sembler","paraître","devenir",
         "maman","papa","frere","soeur","ami","amie","copain","copine","famille",
         "maison","ecole","classe","salle","chambre","cuisine","jardin","rue",
         "chat","chien","oiseau","poisson","lapin","cheval","vache","cochon",
         "jour","nuit","matin","soir","midi","heure","minute","seconde","semaine",
         "monde","pays","ville","village","mer","montagne","foret","riviere",
         "rouge","bleu","vert","jaune","noir","blanc","gris","rose","orange",
-        "grand","petit","gros","mince","beau","bel","belle","bon","mauvais",
-        "nouveau","vieux","jeune","vieux","premier","dernier","autre","même",
+        "grand","petit","gros","mince","beau","bon","mauvais","nouveau","vieux",
         "homme","femme","enfant","garcon","fille","bebe","adulte","personne",
         "eau","feu","air","terre","ciel","soleil","lune","etoile","nuage","pluie",
         "pain","lait","fromage","viande","fruit","legume","gateau","sucre","sel",
         "table","chaise","lit","porte","fenetre","mur","sol","plafond","escalier",
-        "voiture","velo","bus","train","avion","bateau","moto","pied","main",
-        "tete","bras","jambe","oeil","nez","bouche","oreille","dos","ventre",
+        "voiture","velo","bus","train","avion","bateau","moto","main","tete",
+        "bras","jambe","oeil","nez","bouche","oreille","dos","ventre",
         "livre","cahier","stylo","crayon","gomme","regle","cartable","sac",
         "telephone","ordinateur","television","radio","internet","message","photo",
         "sport","football","basket","tennis","natation","course","danse","musique",
         "france","paris","lyon","marseille","bordeaux","nice","nantes","strasbourg",
         "argent","euro","prix","achat","vente","magasin","marche","boutique",
-        "temps","meteo","chaud","froid","beau","pluie","neige","vent","orage"
+        "temps","meteo","chaud","froid","neige","vent","orage","aimer","devoir"
     ]
     score = 0
     for mot in texte.lower().split():
@@ -116,54 +116,39 @@ def score_simple(texte):
     return round(score, 1)
 
 # ── INTERFACE ────────────────────────────────────────────────────────────────
-st.markdown("<h1>🤖 FORCE BRUTE IA</h1>", unsafe_allow_html=True)
-st.markdown('<p style="text-align:center;color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.85rem;letter-spacing:0.2em;">ANALYSE PAR INTELLIGENCE ARTIFICIELLE</p>', unsafe_allow_html=True)
+st.markdown("<h1>🔍 FORCE BRUTE</h1>", unsafe_allow_html=True)
+st.markdown('<p style="text-align:center;color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.85rem;letter-spacing:0.2em;">DETECTION AUTOMATIQUE DE CLE</p>', unsafe_allow_html=True)
 
-api_key = st.secrets["ANTHROPIC_API_KEY"]
 msg = st.text_input("Message chiffré à analyser", placeholder="Collez votre message chiffré ici...")
+nb = st.slider("Nombre de meilleurs résultats à afficher", min_value=3, max_value=20, value=5)
 
-if st.button("🚀 LANCER L'ANALYSE IA"):
+if st.button("🚀 LANCER L'ANALYSE"):
     if not msg:
         st.error("Entrez un message chiffré !")
     else:
-        with st.spinner("Etape 1/2 — Test de toutes les cles..."):
+        with st.spinner("Analyse en cours... test de 10000 clés"):
             resultats = []
             for cle_int in range(10000):
                 cle = str(cle_int).zfill(4) + str(cle_int).zfill(4)
                 try:
                     res = dechiffrer(msg, cle)
-                    s = score_simple(res)
-                    resultats.append((s, cle, res))
+                    s = score_francais(res)
+                    if s > 0:
+                        resultats.append((s, cle, res))
                 except:
                     pass
             resultats.sort(reverse=True)
-            top20 = resultats[:20]
+            top = resultats[:nb]
 
-        st.markdown("<p style='color:#8a9ab0;font-size:0.85rem;'>10000 cles testees — top 20 envoyes a l'IA</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color:#8a9ab0;font-size:0.85rem;'>✅ Analyse terminée — {len(resultats)} résultats pertinents trouvés</p>", unsafe_allow_html=True)
+        st.markdown("---")
 
-        with st.expander("Voir les 20 candidats envoyes a l'IA"):
-            for i, (score, cle, res) in enumerate(top20):
-                st.markdown(f'<div class="candidate-box">#{i+1} Cle {cle} | Score {score} | {res}</div>', unsafe_allow_html=True)
-
-        with st.spinner("Etape 2/2 — L'IA analyse les candidats..."):
-            candidats_txt = "\n".join([f"#{i+1} Cle={cle} : {res}" for i, (s, cle, res) in enumerate(top20)])
-            prompt = f"""Voici 20 tentatives de dechiffrement d'un message code.
-Chaque ligne montre une cle et le resultat du dechiffrement.
-Le message original est probablement en francais.
-
-{candidats_txt}
-
-Quel numero semble etre le vrai message dechiffre ?
-Reponds avec : le numero, la cle, le message dechiffre, et explique pourquoi en 1-2 phrases."""
-
-            try:
-                client = anthropic.Anthropic(api_key=api_key)
-                response = client.messages.create(
-                    model="claude-opus-4-6",
-                    max_tokens=300,
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                analyse = response.content[0].text
-                st.markdown(f'<div class="result-box">ANALYSE DE L\'IA :\n\n{analyse}</div>', unsafe_allow_html=True)
-            except Exception as e:
-                st.error(f"Erreur API : {e}")
+        if top:
+            st.markdown("<p style='color:#00ff88;font-weight:700;letter-spacing:0.2em;'>🏆 MEILLEURS RÉSULTATS :</p>", unsafe_allow_html=True)
+            for i, (score, cle, res) in enumerate(top):
+                if i == 0:
+                    st.markdown(f'<div class="result-found">🥇 Clé : <b>{cle}</b> <span class="score-badge">Score {score}</span><br>{res}</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown(f'<div class="result-normal">#{i+1} Clé : {cle} | Score {score} | {res}</div>', unsafe_allow_html=True)
+        else:
+            st.warning("Aucun résultat trouvé. Le message est peut-être en anglais ou dans une autre langue.")
