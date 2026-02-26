@@ -241,19 +241,36 @@ with col3:
         else:
             st.session_state.auto = not st.session_state.auto
 
+if "classement_global" not in st.session_state:
+    st.session_state.classement_global = []
+
 if st.session_state.auto and msg:
     st.warning("⚙️ Mode automatique actif — cliquez STOP AUTO pour arrêter")
+    classement_placeholder = st.empty()
     bloc_auto = debut
-    while st.session_state.auto and bloc_auto < 100000000:
+    while bloc_auto < 100000000:
         top = analyser_avec_progression(bloc_auto, msg, nb)
         st.success(f"✅ Bloc {bloc_auto // TAILLE_BLOC} terminé !")
-        if top and top[0][0] > 5:
-            st.balloons()
-            st.markdown(f"<p style='color:#00ff88;font-size:1.2rem;font-weight:700;'>🎯 RÉSULTAT PROBABLE TROUVÉ !</p>", unsafe_allow_html=True)
-            afficher_resultats(top)
-            st.session_state.auto = False
-            break
-        elif top:
-            afficher_resultats(top)
+        if top:
+            st.session_state.classement_global.extend(top)
+            st.session_state.classement_global.sort(reverse=True)
+            st.session_state.classement_global = st.session_state.classement_global[:20]
+        with classement_placeholder.container():
+            st.markdown("<p style='color:#00ff88;font-weight:700;letter-spacing:0.2em;'>🏆 CLASSEMENT EN COURS :</p>", unsafe_allow_html=True)
+            for i, (score, cle, res) in enumerate(st.session_state.classement_global[:nb]):
+                if i == 0:
+                    st.markdown(f'<div class="result-found">🥇 Clé : <b>{cle}</b> <span class="score-badge">Score {score}</span><br>{res}</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown(f'<div class="result-normal">#{i+1} Clé : {cle} | Score {score} | {res}</div>', unsafe_allow_html=True)
         bloc_auto += TAILLE_BLOC
         st.session_state.bloc_debut = bloc_auto
+
+if not st.session_state.auto and st.session_state.classement_global:
+    st.markdown("<p style='color:#00ff88;font-weight:700;letter-spacing:0.2em;'>🏆 CLASSEMENT FINAL :</p>", unsafe_allow_html=True)
+    for i, (score, cle, res) in enumerate(st.session_state.classement_global[:nb]):
+        if i == 0:
+            st.markdown(f'<div class="result-found">🥇 Clé : <b>{cle}</b> <span class="score-badge">Score {score}</span><br>{res}</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="result-normal">#{i+1} Clé : {cle} | Score {score} | {res}</div>', unsafe_allow_html=True)
+    if st.button("🗑️ Effacer le classement"):
+        st.session_state.classement_global = []
