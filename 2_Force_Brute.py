@@ -396,7 +396,19 @@ mots_fr = set([
     # Interjections et onomatopées
     "ah","oh","eh","euh","hein","ben","bah","bof","pfff","ouah","wow","super",
     "aie","ouch","zut","mince","flute","merde","putain","bordel","nom","sacre",
-    "chut","stop","allez","hop","et","voila","la","ca","y","est"
+    "chut","stop","allez","hop","et","voila","la","ca","y","est",
+    # Formes verbales courtes
+    "est","sont","ont","vas","fut","put","dut","vit","dit","fit","dit","ait",
+    "bel","beau","belle","bon","bonne","mal","mauvais","mauvaise","nul","nulle",
+    "bete","betes","idiot","idiote","naze","nazes","con","conne","connard",
+    "gros","grosse","gras","grasse","mou","molle","dur","dure","sec","seche",
+    # Prenoms francais communs
+    "romain","thomas","nicolas","antoine","julien","maxime","alexandre","clement",
+    "pierre","paul","jean","louis","hugo","lucas","theo","leo","noah","adam","enzo",
+    "marie","sophie","emma","lea","camille","manon","chloe","sarah","lucie","jade",
+    "alice","julie","laura","pauline","anais","marine","clara","elodie","melissa",
+    "kevin","jordan","dylan","ryan","mathieu","sebastien","francois","guillaume",
+    "mama","papa","tata","tonton","papy","mamie","papi","meme","doudou","cheri","cherie"
 ])
 
 # ── FONCTIONS ─────────────────────────────────────────────────────────────────
@@ -445,17 +457,16 @@ def score_francais(texte):
 
     for mot in mots:
         if len(mot) >= 4 and mot in mots_fr:
-            # Vrai mot long reconnu : gros bonus
             score += 15 + len(mot) * 0.5
             nb_mots_reconnus_longs += 1
+        elif len(mot) == 3 and mot in mots_fr:
+            score += 8
+            nb_mots_reconnus_longs += 1
         elif len(mot) >= 4:
-            # Mot long inconnu : penalite
             nb_mots_longs_inconnus += 1
         elif len(mot) <= 3 and mot in PETITS_MOTS_VALIDES:
-            # Petit mot valide : petit bonus
             score += 2
         else:
-            # Lettre isolee ou petit mot invalide : penalite
             nb_parasites += 1
 
     # Penalite forte pour les parasites
@@ -531,8 +542,11 @@ def analyser_avec_progression(debut, msg, nb, taille_cle):
         if not ratio_voyelles_ok(texte):
             continue
         s = score_francais(texte)
-        if s > 0:
-            resultats.append((s, cle, texte))
+        resultats.append((s, cle, texte))
+        # Garder seulement le top 50 en temps reel pour economiser la memoire
+        if len(resultats) > 50:
+            resultats.sort(reverse=True)
+            resultats = resultats[:50]
         if idx % 25000 == 0:
             pct = idx / total
             barre.progress(min(pct, 1.0))
