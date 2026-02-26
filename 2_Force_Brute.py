@@ -430,51 +430,47 @@ def ratio_voyelles_ok(texte):
     ratio = voyelles / len(lettres)
     return MIN_VOYELLES <= ratio <= MAX_VOYELLES
 
+# Seuls ces petits mots sont acceptes — les autres sont ignores
+PETITS_MOTS_VALIDES = {"le","la","les","de","du","des","un","une","et","en","au","a",
+    "je","tu","il","on","ce","ca","si","ou","ni","ne","se","me","te","ma","ta","sa",
+    "ok","yo","ah","eh","oh","oui","non","oui","nan","bah","ben","bon","ya","va"}
+
 def score_francais(texte):
     score = 0
     mots = texte.split()
     nb_mots = len(mots) if mots else 1
-
-    nb_mots_reconnus = 0
-    nb_mots_longs_inconnus = 0
-    nb_lettres_seules = 0
+    nb_mots_reconnus_longs = 0   # mots de 4+ lettres reconnus
+    nb_mots_longs_inconnus = 0   # mots de 4+ lettres non reconnus
+    nb_parasites = 0             # petits mots non valides
 
     for mot in mots:
-        if len(mot) == 1:
-            # Lettre seule : penaliser sauf si c est une vraie prep (a, y, en...)
-            if mot in {"a","y","en","de","le","la"}:
-                score += 1
-            else:
-                nb_lettres_seules += 1
-        elif mot in mots_fr:
-            # Vrai mot reconnu : bonus proportionnel a la longueur
-            score += 8 + len(mot) * 0.5
-            nb_mots_reconnus += 1
-        elif len(mot) <= 3:
-            score += 0.5
-        else:
+        if len(mot) >= 4 and mot in mots_fr:
+            # Vrai mot long reconnu : gros bonus
+            score += 15 + len(mot) * 0.5
+            nb_mots_reconnus_longs += 1
+        elif len(mot) >= 4:
+            # Mot long inconnu : penalite
             nb_mots_longs_inconnus += 1
+        elif len(mot) <= 3 and mot in PETITS_MOTS_VALIDES:
+            # Petit mot valide : petit bonus
+            score += 2
+        else:
+            # Lettre isolee ou petit mot invalide : penalite
+            nb_parasites += 1
 
-    # Penalite forte pour chaque lettre seule isolee
-    score -= nb_lettres_seules * 3
+    # Penalite forte pour les parasites
+    score -= nb_parasites * 4
 
-    # Penalite pour les mots longs inconnus
-    score -= nb_mots_longs_inconnus * 2
+    # Penalite pour mots longs inconnus
+    score -= nb_mots_longs_inconnus * 3
 
-    # Bonus si majorite de mots reconnus
-    ratio_reconnus = nb_mots_reconnus / nb_mots
-    if ratio_reconnus >= 0.6:
-        score += 30
-    elif ratio_reconnus >= 0.4:
-        score += 15
-    elif ratio_reconnus >= 0.2:
+    # Gros bonus si plusieurs vrais mots longs reconnus
+    if nb_mots_reconnus_longs >= 3:
+        score += 40
+    elif nb_mots_reconnus_longs >= 2:
+        score += 20
+    elif nb_mots_reconnus_longs >= 1:
         score += 5
-
-    # Bigrammes frequents
-    bigrammes_fr = {"ou","en","an","on","es","er","ai","oi","au","eu","in","un","ie","et","il","el","ar","or","qu","ch","nt","re","le","de","me","ne","se","te","ve","ai","ur","us","om","am"}
-    for i in range(len(texte)-1):
-        if texte[i:i+2] in bigrammes_fr:
-            score += 0.15
 
     # Penaliser suites de 3+ consonnes
     consonnes = set("bcdfghjklmnpqrstvwxyz")
@@ -483,14 +479,14 @@ def score_francais(texte):
         if c in consonnes:
             suite += 1
             if suite >= 3:
-                score -= 1.5
+                score -= 2
         else:
             suite = 0
 
-    # Penaliser mots sans voyelle de 3+ lettres
+    # Penaliser mots sans voyelle de 4+ lettres
     for mot in mots:
-        if len(mot) > 2 and not any(v in mot for v in "aeiouy"):
-            score -= 4
+        if len(mot) >= 4 and not any(v in mot for v in "aeiouy"):
+            score -= 5
 
     return round(max(0, score), 1)
 
