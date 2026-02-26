@@ -84,7 +84,7 @@ mots_fr = set([
     "pain","lait","fromage","viande","fruit","legume","gateau","sucre","sel",
     "table","chaise","lit","porte","fenetre","mur","sol","plafond","escalier",
     "voiture","velo","bus","train","avion","bateau","moto","main","tete",
-    "bras","jambe","oeil","nez","bouche","oreille","dos","ventre","salut",
+    "bras","jambe","oeil","nez","bouche","oreille","dos","ventre",
     "livre","cahier","stylo","crayon","gomme","regle","cartable","sac",
     "telephone","ordinateur","television","radio","internet","message","photo",
     "sport","football","basket","tennis","natation","course","danse","musique",
@@ -137,13 +137,40 @@ def ratio_voyelles_ok(texte):
 
 def score_francais(texte):
     score = 0
+    # Mots francais connus
     for mot in texte.split():
         if mot in mots_fr:
             score += 3
+
+    # Lettres frequentes en francais
     for c in texte:
         if c in FREQ_FR:
             score += 0.1
-    return round(score, 1)
+
+    # Bigrammes frequents en francais
+    bigrammes_fr = {"ou","en","an","on","es","er","ai","oi","au","eu","in","un","ie","et","il","el","is","us","ar","or","ac","oc","la","le","de","du","qu","ch","ph","ss","ll","tt","nn","mm","pp","ff","cc"}
+    for i in range(len(texte)-1):
+        bg = texte[i:i+2]
+        if bg in bigrammes_fr:
+            score += 0.3
+
+    # Penaliser les suites de consonnes impossibles (3+ consonnes de suite)
+    consonnes = set("bcdfghjklmnpqrstvwxyz")
+    suite = 0
+    for c in texte:
+        if c in consonnes:
+            suite += 1
+            if suite >= 3:
+                score -= 0.5
+        else:
+            suite = 0
+
+    # Penaliser les mots trop longs sans voyelle
+    for mot in texte.split():
+        if len(mot) > 2 and not any(v in mot for v in "aeiouy"):
+            score -= 1
+
+    return round(max(0, score), 1)
 
 def afficher_barre_globale(placeholder, nb_blocs):
     pct = len(st.session_state.blocs_testes) / nb_blocs * 100 if nb_blocs > 0 else 0
