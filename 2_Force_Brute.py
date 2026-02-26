@@ -58,6 +58,18 @@ N_ALP = 27
 TAILLE_BLOC = 100000
 NB_BLOCS = 1000
 FREQ_FR = set("easitnrul")
+VOYELLES = set("aeiouy")
+# En français : entre 35% et 50% de voyelles
+MIN_VOYELLES = 0.30
+MAX_VOYELLES = 0.55
+
+def ratio_voyelles_ok(texte):
+    lettres = [c for c in texte if c in alp and c != " "]
+    if len(lettres) == 0:
+        return True
+    voyelles = sum(1 for c in lettres if c in VOYELLES)
+    ratio = voyelles / len(lettres)
+    return MIN_VOYELLES <= ratio <= MAX_VOYELLES
 
 mots_fr = set([
     "le","la","les","de","du","des","un","une","et","est","en","au","aux",
@@ -145,6 +157,8 @@ def analyser_avec_progression(debut, msg, nb):
             else:
                 res[i] = msg[src]
         texte = "".join(res)
+        if not ratio_voyelles_ok(texte):
+            continue
         s = score_francais(texte)
         if s > 0:
             resultats.append((s, cle, texte))
