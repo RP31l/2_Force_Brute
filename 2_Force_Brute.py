@@ -61,47 +61,342 @@ MIN_VOYELLES = 0.30
 MAX_VOYELLES = 0.55
 
 mots_fr = set([
-    "le","la","les","de","du","des","un","une","et","est","en","au","aux",
-    "je","tu","il","elle","nous","vous","ils","elles","me","te","se","y",
-    "que","qui","quoi","dont","ou","ne","pas","plus","jamais","rien","tout",
-    "mon","ton","son","ma","ta","sa","notre","votre","leur","mes","tes","ses",
-    "ce","cet","cette","ces","cela","ca","ici","voici","voila",
-    "avec","pour","sans","sous","sur","dans","par","entre","vers","chez",
-    "mais","donc","or","ni","car","si","puis","alors","ainsi",
-    "bonjour","bonsoir","salut","merci","oui","non","bien","mal","tres",
-    "avoir","etre","faire","dire","aller","voir","savoir","pouvoir","vouloir",
-    "venir","partir","prendre","donner","mettre","passer","tenir","rester",
-    "manger","boire","dormir","parler","ecrire","lire","jouer","travailler",
-    "maman","papa","frere","soeur","ami","amie","copain","copine","famille",
-    "maison","ecole","classe","salle","chambre","cuisine","jardin","rue",
-    "chat","chien","oiseau","poisson","lapin","cheval","vache","cochon",
-    "jour","nuit","matin","soir","midi","heure","minute","seconde","semaine",
-    "monde","pays","ville","village","mer","montagne","foret","riviere",
-    "rouge","bleu","vert","jaune","noir","blanc","gris","rose","orange",
-    "grand","petit","gros","mince","beau","bon","mauvais","nouveau","vieux",
-    "homme","femme","enfant","garcon","fille","bebe","adulte","personne",
-    "eau","feu","air","terre","ciel","soleil","lune","etoile","nuage","pluie",
-    "pain","lait","fromage","viande","fruit","legume","gateau","sucre","sel",
-    "table","chaise","lit","porte","fenetre","mur","sol","plafond","escalier",
-    "voiture","velo","bus","train","avion","bateau","moto","main","tete",
-    "bras","jambe","oeil","nez","bouche","oreille","dos","ventre",
-    "livre","cahier","stylo","crayon","gomme","regle","cartable","sac",
-    "telephone","ordinateur","television","radio","internet","message","photo",
-    "sport","football","basket","tennis","natation","course","danse","musique",
-    "france","paris","lyon","marseille","bordeaux","nice","nantes","strasbourg",
-    "argent","euro","prix","achat","vente","magasin","marche","boutique",
-    "temps","meteo","chaud","froid","neige","vent","orage","aimer","devoir",
-    "t","c","g","j","v","n","l","m","y","k","r","z","s","a","e",
-    "trop","tres","super","hyper","mega","grave","vrai","faux","ouais","ouai",
-    "wesh","yo","ok","nan","bah","beh","ben","bon","eh","ah","oh",
-    "chiant","chiante","nul","nulle","cool","sympa","bizarre","chelou",
-    "frere","frero","frerot","frer","freere","soeurette",
-    "mec","gars","meuf","bro","bg","bb","lol","mdr","ptdr",
-    "stp","svp","jsp","jpp","pk","pcq","pr",
-    "maintenant","mtn","apres","avant","demain","hier",
-    "vraiment","vrmt","tellement","fort","serieux",
-    "bisou","bisous","amour","fatigue","enerve","content","triste",
-    "mange","bouffe","dormi","sorti","parle","appel","texte"
+    # Articles et determinants
+    "le","la","les","de","du","des","un","une","au","aux","l","d",
+    # Pronoms
+    "je","tu","il","elle","nous","vous","ils","elles","me","te","se","y","en",
+    "moi","toi","lui","eux","leur","on","ce","cet","cette","ces","celui","celle",
+    "ceux","celles","cela","ca","ceci","rien","tout","tous","toute","toutes",
+    "quelque","quelques","chaque","autre","autres","meme","memes","tel","telle",
+    # Verbes etre et avoir conjugues
+    "suis","es","sommes","etes","sont","etais","etait","etions","etiez","etaient",
+    "ai","as","avons","avez","ont","avais","avait","avions","aviez","avaient",
+    "sera","serai","seras","serons","serez","seront","serais","serait","serions","seriez","seraient",
+    "aura","aurai","auras","aurons","aurez","auront","aurais","aurait","aurions","auriez","auraient",
+    "ete","eu","etant","ayant",
+    # Verbes courants conjugues
+    "fait","fais","faisons","faites","font","faisais","faisait","fera","ferai","feras","ferons","ferez","feront",
+    "dit","dis","disons","dites","disent","disais","disait",
+    "va","vais","allons","allez","vont","allais","allait","irai","iras","ira","irons","irez","iront",
+    "vois","voit","voyons","voyez","voient","voyais","voyait","verra","verrai",
+    "sais","sait","savons","savez","savent","savais","savait",
+    "peux","peut","pouvons","pouvez","peuvent","pouvais","pouvait","pourra","pourrai",
+    "veux","veut","voulons","voulez","veulent","voulais","voulait","voudra","voudrai",
+    "viens","vient","venons","venez","viennent","venais","venait","viendra","viendrai",
+    "prends","prend","prenons","prenez","prennent","prenais","prenait",
+    "dois","doit","devons","devez","doivent","devais","devait","devra","devrai",
+    "mets","met","mettons","mettez","mettent","mettais","mettait",
+    "tiens","tient","tenons","tenez","tiennent","tenais","tenait",
+    "reviens","revient","revenons","revenez","reviennent",
+    "viens","vient","venons","venez","viennent",
+    "mange","manges","mangeons","mangez","mangent","mangeais","mangeait",
+    "bois","boit","buvons","buvez","boivent","buvais","buvait",
+    "dors","dort","dormons","dormez","dorment","dormais","dormait",
+    "parle","parles","parlons","parlez","parlent","parlais","parlait",
+    "joue","joues","jouons","jouez","jouent","jouais","jouait",
+    "aime","aimes","aimons","aimez","aiment","aimais","aimait",
+    "pense","penses","pensons","pensez","pensent","pensais","pensait",
+    "reste","restes","restons","restez","restent","restais","restait",
+    "arrive","arrives","arrivons","arrivez","arrivent","arrivais","arrivait",
+    "attends","attend","attendons","attendez","attendent","attendais","attendait",
+    "connais","connait","connaissons","connaissez","connaissent",
+    "crois","croit","croyons","croyez","croient","croyais","croyait",
+    "donne","donnes","donnons","donnez","donnent","donnais","donnait",
+    "habite","habites","habitons","habitez","habitent",
+    "marche","marches","marchons","marchez","marchent",
+    "monte","montes","montons","montez","montent",
+    "ouvre","ouvres","ouvrons","ouvrez","ouvrent",
+    "regarde","regardes","regardons","regardez","regardent",
+    "rentre","rentres","rentrons","rentrez","rentrent",
+    "sors","sort","sortons","sortez","sortent","sortais","sortait",
+    "tombe","tombes","tombons","tombez","tombent",
+    "travaille","travailles","travaillons","travaillez","travaillent",
+    "trouve","trouves","trouvons","trouvez","trouvent",
+    "viens","vient","venons","venez","viennent",
+    "vis","vit","vivons","vivez","vivent","vivais","vivait",
+    "appelle","appelles","appelons","appelez","appellent",
+    "commence","commences","commencons","commencez","commencent",
+    "comprends","comprend","comprenons","comprenez","comprennent",
+    "couche","couches","couchons","couchez","couchent",
+    "demande","demandes","demandons","demandez","demandent",
+    "depasse","depasses","depassons","depassez","depassent",
+    "ecris","ecrit","ecrivons","ecrivez","ecrivent",
+    "envoie","envoies","envoyons","envoyez","envoient",
+    "leve","leves","levons","levez","levent",
+    "lis","lit","lisons","lisez","lisent",
+    "passes","passons","passez","passent",
+    "perds","perd","perdons","perdez","perdent",
+    "pleure","pleures","pleurons","pleurez","pleurent",
+    "poses","posons","posez","posent",
+    "rappelle","rappelles","rappelons","rappelez","rappellent",
+    "reponds","repond","repondons","repondez","repondent",
+    "ris","rit","rions","riez","rient",
+    "sens","sent","sentons","sentez","sentent",
+    "sors","sort","sortons","sortez","sortent",
+    "touches","touchons","touchez","touchent",
+    "utilises","utilisons","utilisez","utilisent",
+    "vois","voit","voyons","voyez","voient",
+    # Prepositions et conjonctions
+    "et","ou","mais","donc","or","ni","car","que","qui","quoi","dont","quand",
+    "comme","si","parce","puisque","bien","mal","sans","sous","sur","dans",
+    "par","entre","vers","chez","avec","pour","contre","avant","apres","depuis",
+    "pendant","selon","malgre","sauf","lors","jusque","jusqu","afin","ainsi",
+    "alors","aussi","autant","cependant","certes","deja","encore","enfin",
+    "ensuite","environ","peu","pres","surtout","toujours","jamais","souvent",
+    "parfois","rarement","vite","loin","près","ici","la","voici","voila",
+    "quand","comment","pourquoi","combien","quel","quelle","quels","quelles",
+    "non","oui","si","peut","etre","peut-etre","peut etre",
+    # Negations
+    "ne","pas","plus","point","guere","nullement","aucun","aucune","personne",
+    # Adjectifs courants
+    "grand","grande","grands","grandes","petit","petite","petits","petites",
+    "gros","grosse","gros","grosses","mince","minces",
+    "beau","belle","beaux","belles","joli","jolie","jolis","jolies",
+    "laid","laide","laids","laides","fort","forte","forts","fortes",
+    "faible","faibles","rapide","rapides","lent","lente","lents","lentes",
+    "chaud","chaude","chauds","chaudes","froid","froide","froids","froides",
+    "bon","bonne","bons","bonnes","mauvais","mauvaise","mauvaises",
+    "vieux","vieille","vieux","vieilles","jeune","jeunes",
+    "nouveau","nouvelle","nouveaux","nouvelles","ancien","ancienne","anciens","anciennes",
+    "premier","premiere","premiers","premieres","dernier","derniere","derniers","dernieres",
+    "prochain","prochaine","prochains","prochaines","seul","seule","seuls","seules",
+    "meme","memes","autre","autres","certain","certaine","certains","certaines",
+    "plusieurs","nombreux","nombreuse","nombreuses","divers","diverse","diverses",
+    "different","differente","differents","differentes","pareil","pareille",
+    "heureux","heureuse","heureux","heureuses","triste","tristes",
+    "content","contente","contents","contentes","fache","fachee","faches","fachees",
+    "fatigue","fatiguee","fatigues","fatiguees","malade","malades",
+    "libre","libres","occupe","occupee","occupes","occupees",
+    "possible","impossible","necessaire","important","importante",
+    "difficile","difficiles","facile","faciles","utile","utiles",
+    "vrai","vraie","vrais","vraies","faux","fausse","fausses",
+    "long","longue","longs","longues","court","courte","courts","courtes",
+    "haut","haute","hauts","hautes","bas","basse","basses",
+    "plein","pleine","pleins","pleines","vide","vides",
+    "ouvert","ouverte","ouverts","ouvertes","ferme","fermee","fermes","fermees",
+    "chic","cool","super","sympa","nul","nulle","nuls","nulles",
+    "bizarre","bizarres","chelou","chelous","marrant","marrante","marrants","marrantes",
+    "gentil","gentille","gentils","gentilles","mechant","mechante","mechants","mechantes",
+    "timide","timides","drole","droles","serieux","serieuse","serieuses",
+    # Noms personnes et famille
+    "homme","femme","enfant","garcon","fille","bebe","adulte","personne","gens",
+    "maman","papa","mere","pere","frere","soeur","grand","mere","grand","pere",
+    "grandmere","grandpere","oncle","tante","cousin","cousine","neveu","niece",
+    "mari","femme","epoux","epouse","copain","copine","ami","amie","camarade",
+    "collegue","voisin","voisine","patron","chef","eleve","etudiant","professeur",
+    "medecin","docteur","infirmier","infirmiere","policier","pompier","soldat",
+    "roi","reine","prince","princesse","president","ministre",
+    "frere","frero","frerot","frer","freere","soeurette","mec","gars","meuf","bro",
+    # Corps humain
+    "tete","visage","front","yeux","oeil","nez","bouche","dent","dents","langue",
+    "oreille","oreilles","joue","joues","menton","cou","epaule","epaules",
+    "bras","coude","poignet","main","mains","doigt","doigts","pouce",
+    "poitrine","dos","ventre","nombril","hanche","fesse","fesses",
+    "jambe","jambes","genou","genoux","cheville","pied","pieds","orteil",
+    "peau","muscle","os","sang","coeur","poumon","cerveau",
+    # Maison et lieu
+    "maison","appartement","immeuble","batiment","edifice","construction",
+    "chambre","salon","cuisine","salle","bureau","couloir","escalier","cave",
+    "grenier","garage","jardin","terrasse","balcon","toit","porte","fenetre",
+    "mur","sol","plafond","meubles","table","chaise","canape","lit","armoire",
+    "rue","avenue","boulevard","chemin","route","autoroute","pont","tunnel",
+    "ville","village","quartier","banlieue","campagne","ferme","chateau",
+    "ecole","college","lycee","universite","bibliotheque","musee","theatre",
+    "cinema","restaurant","hotel","hopital","pharmacie","magasin","boutique",
+    "supermarche","boulangerie","boucherie","epicerie","marche","banque","poste",
+    "gare","aeroport","port","station","arret","metro","bus","tramway",
+    "parc","jardin","foret","bois","montagne","colline","vallee","plaine",
+    "mer","ocean","lac","riviere","fleuve","plage","ile","cote",
+    # Animaux
+    "chat","chien","cheval","vache","cochon","mouton","chevre","ane",
+    "poule","coq","canard","oie","dinde","lapin","souris","rat",
+    "oiseau","aigle","hibou","perroquet","moineau","pigeon","corbeau",
+    "poisson","requin","dauphin","baleine","pieuvre","crabe","homard",
+    "lion","tigre","elephant","girafe","zebre","singe","gorille","ours",
+    "loup","renard","cerf","lapin","herisson","ecureuil","castor",
+    "serpent","lezard","tortue","grenouille","insecte","abeille","papillon",
+    # Nourriture
+    "pain","baguette","croissant","brioche","gateau","tarte","biscuit","cookie",
+    "lait","beurre","fromage","yaourt","creme","oeuf","oeufs",
+    "viande","boeuf","poulet","porc","agneau","jambon","saucisse","saucisson",
+    "poisson","thon","saumon","sardine","crevette","moule",
+    "legume","carotte","pomme","terre","tomate","salade","haricot","petit","pois",
+    "oignon","ail","poivron","aubergine","courgette","champignon","brocoli",
+    "fruit","pomme","poire","banane","orange","citron","fraise","framboise",
+    "cerise","peche","abricot","mangue","ananas","raisin","melon","pastèque",
+    "riz","pates","nouilles","soupe","bouillon","salade","sandwich","pizza","burger",
+    "sucre","sel","poivre","moutarde","mayonnaise","ketchup","sauce","huile","vinaigre",
+    "eau","lait","jus","cafe","the","chocolat","coca","biere","vin","champagne",
+    # Vetements
+    "habit","vetement","vetements","tenue","costume","robe","jupe","pantalon",
+    "jean","short","bermuda","legging","collant","slip","culotte","boxer",
+    "chemise","chemisier","tshirt","pull","sweat","veste","manteau","blouson",
+    "imperméable","parka","anorak","gilet","cardigan","blazer",
+    "chaussure","chaussures","basket","botte","sandale","talon","mocassin",
+    "chaussette","chaussettes","collants","sous","vetements",
+    "chapeau","casquette","bonnet","echarpe","gant","gants","ceinture","sac",
+    # Transports
+    "voiture","auto","automobile","camion","camionnette","fourgon","van",
+    "moto","scooter","velo","trottinette","skateboard","roller",
+    "bus","autobus","autocar","metro","tramway","train","tgv","rer",
+    "avion","helicoptere","drone","parachute","bateau","voilier","ferry",
+    "taxi","uber","covoiturage","ambulance","pompier","police",
+    # Technologie
+    "telephone","portable","smartphone","tablette","ordinateur","laptop","pc","mac",
+    "ecran","clavier","souris","imprimante","scanner","webcam","casque","enceinte",
+    "internet","wifi","cable","chargeur","batterie","application","appli","logiciel",
+    "reseau","serveur","cloud","email","mail","message","sms","appel","video",
+    "facebook","instagram","snapchat","twitter","youtube","tiktok","whatsapp","discord",
+    "google","amazon","apple","microsoft","samsung","netflix","spotify",
+    "photo","selfie","video","film","serie","musique","podcast","stream","live",
+    # Corps social
+    "travail","boulot","taf","job","emploi","metier","carriere","salaire","argent",
+    "euro","centime","billet","monnaie","banque","compte","virement","cheque",
+    "famille","foyer","menage","couple","mariage","divorce","naissance","deces",
+    "ami","amitie","amour","relation","rencontre","rendez","vous","sortie","soiree",
+    "fete","anniversaire","noel","paques","vacances","conge","week","end","weekend",
+    "sport","foot","football","basket","tennis","rugby","volley","natation","course",
+    "velo","randonnee","musculation","yoga","danse","boxe","judo","karate","natation",
+    "loisir","hobby","passion","cinema","theatre","concert","exposition","musee",
+    # Temps
+    "jour","nuit","matin","midi","apres","midi","soir","minuit",
+    "heure","minute","seconde","moment","instant","fois","periode","epoque",
+    "lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche",
+    "janvier","fevrier","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","decembre",
+    "semaine","mois","annee","siecle","millenaire","hier","aujourd","hui","demain",
+    "maintenant","bientot","tout","de","suite","depuis","pendant","avant","apres",
+    "tot","tard","vite","longtemps","souvent","parfois","rarement","jamais",
+    # Sentiments et etats
+    "heureux","heureuse","triste","content","contente","fache","fachee",
+    "amoureux","amoureuse","jaloux","jalouse","fier","fiere","honte","gene","genee",
+    "peur","joie","colere","tristesse","bonheur","malheur","chance","malchance",
+    "fatigue","fatiguee","malade","sain","saine","fort","forte","faible",
+    "choque","surprise","etonne","etonnee","decu","decue","fier","fiere",
+    "stress","stresse","stressee","calme","zen","detend","detente","relaxe",
+    "ennuye","ennuyee","excite","excitee","curieux","curieuse","indifferent",
+    "bored","excite","nerveux","nerveuse","anxieux","anxieuse","confiant","confiante",
+    # Argot et SMS
+    "t","c","g","j","v","n","l","m","y","k","r","z","s","a","e","i","o","u",
+    "trop","super","hyper","mega","vachement","vraiment","carrément","franchement",
+    "genre","style","espece","sorte","truc","machin","bidule","chose","affaire",
+    "ouais","ouai","ouep","yep","yop","bah","beh","ben","bon","eh","ah","oh","ow",
+    "wesh","wsh","yo","ayo","oye","hey","hé","allo","ola","coucou","salut",
+    "ok","okay","nan","nope","si","oui","mouais","bof","pff","pfff","lol","mdr",
+    "ptdr","xd","omg","wtf","omfg","wth","ngl","imo","tbh","fr","frr","bruh",
+    "stp","svp","jsp","jpp","jvs","pk","pcq","pck","pr","ns","vs","qd","dc",
+    "mtn","mntnt","mm","ms","mc","mec","gars","meuf","nana","keuf","keum",
+    "bro","frero","frer","frere","freere","soeur","soeurette","sis","daronne","daron",
+    "poto","pote","copain","copine","ami","amie","bg","bg","bb","babe","cheri","cherie",
+    "nul","nulle","ouf","chelou","zarbi","bizarre","louche","weird","random",
+    "cool","swag","classe","stylé","stylée","hype","tendance","viral","buzz",
+    "chiant","chiante","relou","reloud","lourd","lourde","saoul","saoule",
+    "grave","clairement","exactement","absolument","totalement","completement",
+    "carrément","franchement","serieusement","serieux","serieuse","honnetement",
+    "bisou","bisous","bise","bises","kiss","câlin","calin","amour","love",
+    "enerve","enervee","soule","soulee","agace","agacee","irrite","irritee",
+    "perdu","perdue","perdu","confus","confuse","perturbe","perturbee","perplexe",
+    "manger","bouffer","crever","creve","dormir","pioncer","sortir","kiffer",
+    "aimer","adorer","detester","hair","apprécier","apprecier","preferer",
+    "parler","causer","tchatcher","discuter","expliquer","raconter","dire","crier","chuchoter",
+    "ecouter","entendre","regarder","voir","observer","fixer","scruter",
+    "toucher","sentir","gouter","respirer","bouger","marcher","courir","sauter",
+    "tomber","glisser","nager","voler","grimper","descendre","monter","entrer","sortir",
+    # France et lieux
+    "france","paris","lyon","marseille","bordeaux","toulouse","nice","nantes",
+    "strasbourg","montpellier","lille","rennes","reims","toulon","grenoble",
+    "dijon","angers","nimes","villeurbanne","saint","etienne","le","havre",
+    "europe","monde","afrique","asie","amerique","australie","antartique",
+    "espagne","italie","allemagne","angleterre","portugal","belgique","suisse",
+    "maroc","algerie","tunisie","senegal","cameroun","cote","ivoire",
+    # Divers
+    "chose","truc","machin","bidule","affaire","histoire","exemple","raison",
+    "probleme","solution","question","reponse","idee","projet","plan","but",
+    "droit","gauche","haut","bas","devant","derriere","milieu","centre","cote",
+    "numero","chiffre","lettre","mot","phrase","texte","livre","page","chapitre",
+    "couleur","rouge","bleu","vert","jaune","noir","blanc","gris","rose","violet",
+    "orange","marron","beige","turquoise","or","argent","bronze",
+    "taille","poids","hauteur","largeur","longueur","distance","vitesse","temperature",
+    "bruit","son","musique","chanson","melodie","rythme","parole","lyrique",
+    "lumiere","ombre","couleur","image","photo","dessin","peinture","sculpture",
+    # Verbes conjugues supplementaires
+    "mange","manges","mangeons","mangez","mangent","mangé",
+    "parle","parles","parlons","parlez","parlent","parlé",
+    "joue","joues","jouons","jouez","jouent","joué",
+    "aime","aimes","aimons","aimez","aiment","aimé",
+    "fais","fait","faisons","faites","font","faisais","faisait",
+    "vais","vas","va","allons","allez","vont","allait","allais",
+    "suis","es","sommes","etes","sont","etait","etais","etaient",
+    "ai","as","avons","avez","ont","avait","avais","avaient",
+    "peux","peut","pouvons","pouvez","peuvent","pouvais",
+    "veux","veut","voulons","voulez","veulent","voulais",
+    "dois","doit","devons","devez","doivent","devais",
+    "sais","sait","savons","savez","savent","savais",
+    "viens","vient","venons","venez","viennent","venais",
+    "dis","dit","disons","dites","disent","disais",
+    "prends","prend","prenons","prenez","prennent","prenais",
+    "mets","met","mettons","mettez","mettent","mettais",
+    "vois","voit","voyons","voyez","voient","voyais",
+    "ris","rit","rions","riez","rient","pleure","pleures","pleurent",
+    "cours","court","courons","courez","courent","marchons",
+    "dors","dort","dormons","dormez","dorment","dormais",
+    "ecris","ecrit","ecrivons","ecrivez","ecrivent",
+    "lis","lit","lisons","lisez","lisent","lisais",
+    "bois","boit","buvons","buvez","boivent","buvais",
+    "sors","sort","sortons","sortez","sortent","sortais",
+    "rentre","rentres","rentrons","rentrez","rentrent",
+    "reste","restes","restons","restez","restent",
+    "passe","passes","passons","passez","passent",
+    "regarde","regardes","regardons","regardez","regardent",
+    "ecoute","ecoutes","ecoutons","ecoutez","ecoutent",
+    "appelle","appelles","appelons","appelez","appellent",
+    "travaille","travailles","travaillons","travaillez","travaillent",
+    "chante","chantes","chantons","chantez","chantent",
+    "danse","danses","dansons","dansez","dansent",
+    "cherche","cherches","cherchons","cherchez","cherchent",
+    "trouve","trouves","trouvons","trouvez","trouvent",
+    "pense","penses","pensons","pensez","pensent",
+    "crois","croit","croyons","croyez","croient",
+    "connais","connait","connaissons","connaissez","connaissent",
+    "comprends","comprend","comprenons","comprenez","comprennent",
+    "apprends","apprend","apprenons","apprenez","apprennent",
+    "oublie","oublies","oublions","oubliez","oublient",
+    "demande","demandes","demandons","demandez","demandent",
+    "repond","reponds","repondons","repondez","repondent",
+    "aide","aides","aidons","aidez","aident",
+    "achete","achetes","achetons","achetez","achetent",
+    "reviens","revient","revenons","revenez","reviennent",
+    "attends","attend","attendons","attendez","attendent",
+    # Formes passées et futures
+    "suis","etais","serai","serais","sera","serons","serez","seront",
+    "avais","aurai","aurais","aura","aurons","aurez","auront",
+    "allait","irai","irais","ira","irons","irez","iront",
+    "faisait","ferai","ferais","fera","ferons","ferez","feront",
+    "disait","dirai","dirais","dira","dirons","direz","diront",
+    "voyait","verrai","verrais","verra","verrons","verrez","verront",
+    "savait","saurai","saurais","saura","saurons","saurez","sauront",
+    "pouvait","pourrai","pourrais","pourra","pourrons","pourrez","pourront",
+    "voulait","voudrai","voudrais","voudra","voudrons","voudrez","voudront",
+    "devait","devrai","devrais","devra","devrons","devrez","devront",
+    "prenait","prendrai","prendras","prendra","prendrons","prendrez","prendront",
+    "venait","viendrai","viendras","viendra","viendrons","viendrez","viendront",
+    # Expressions et mots liaisons
+    "donc","alors","ensuite","enfin","bref","quand","meme","surtout",
+    "pourtant","cependant","neanmoins","toutefois","sinon","autrement",
+    "voila","voici","tiens","attention","zut","mince","super","genial",
+    "parfait","exactement","evidemment","certainement","absolument","totalement",
+    "normalement","generalement","habituellement","specialement","rapidement",
+    "lentement","doucement","fortement","faiblement","clairement","simplement",
+    "ensemble","seul","seule","seuls","seules","ensemble","partout","nulle",
+    "ailleurs","autour","dedans","dehors","dessus","dessous","devant","derriere",
+    # Mots de politesse et salutations
+    "bonjour","bonsoir","bonne","nuit","salut","coucou","hello","allo","bye",
+    "merci","beaucoup","sil","vous","plait","pardon","excuse","desole","desolee",
+    "bienvenue","felicitations","bravo","courage","bonne","chance","bonne","journee",
+    "sante","cheers","tchin","bisous","bises","grosses","bisous","gros","câlins",
+    # Interjections et onomatopées
+    "ah","oh","eh","euh","hein","ben","bah","bof","pfff","ouah","wow","super",
+    "aie","ouch","zut","mince","flute","merde","putain","bordel","nom","sacre",
+    "chut","stop","allez","hop","et","voila","la","ca","y","est"
 ])
 
 # ── FONCTIONS ─────────────────────────────────────────────────────────────────
@@ -137,38 +432,51 @@ def ratio_voyelles_ok(texte):
 
 def score_francais(texte):
     score = 0
-    # Mots francais connus
-    for mot in texte.split():
+    mots = texte.split()
+    nb_mots = len(mots) if mots else 1
+
+    # Mots francais connus — gros bonus, c'est le critere principal
+    nb_mots_reconnus = 0
+    for mot in mots:
         if mot in mots_fr:
-            score += 3
+            score += 10
+            nb_mots_reconnus += 1
 
-    # Lettres frequentes en francais
-    for c in texte:
-        if c in FREQ_FR:
-            score += 0.1
+    # Bonus si la majorite des mots sont reconnus
+    ratio_reconnus = nb_mots_reconnus / nb_mots
+    if ratio_reconnus >= 0.5:
+        score += 20
+    elif ratio_reconnus >= 0.3:
+        score += 5
 
-    # Bigrammes frequents en francais
-    bigrammes_fr = {"ou","en","an","on","es","er","ai","oi","au","eu","in","un","ie","et","il","el","is","us","ar","or","ac","oc","la","le","de","du","qu","ch","ph","ss","ll","tt","nn","mm","pp","ff","cc"}
+    # Bigrammes frequents en francais — bonus modere
+    bigrammes_fr = {"ou","en","an","on","es","er","ai","oi","au","eu","in","un","ie","et","il","el","ar","or","qu","ch","nt","re","le","de","me","ne","se","te","ve"}
     for i in range(len(texte)-1):
-        bg = texte[i:i+2]
-        if bg in bigrammes_fr:
-            score += 0.3
+        if texte[i:i+2] in bigrammes_fr:
+            score += 0.2
 
-    # Penaliser les suites de consonnes impossibles (3+ consonnes de suite)
+    # Penaliser fortement les mots inconnus longs (probablement du bruit)
     consonnes = set("bcdfghjklmnpqrstvwxyz")
+    for mot in mots:
+        if len(mot) > 3 and mot not in mots_fr:
+            score -= 2
+        if len(mot) > 2 and not any(v in mot for v in "aeiouy"):
+            score -= 3
+
+    # Penaliser les suites de 3+ consonnes
     suite = 0
     for c in texte:
         if c in consonnes:
             suite += 1
             if suite >= 3:
-                score -= 0.5
+                score -= 1
         else:
             suite = 0
 
-    # Penaliser les mots trop longs sans voyelle
-    for mot in texte.split():
-        if len(mot) > 2 and not any(v in mot for v in "aeiouy"):
-            score -= 1
+    # Lettres frequentes — petit bonus residuel
+    for c in texte:
+        if c in FREQ_FR:
+            score += 0.05
 
     return round(max(0, score), 1)
 
