@@ -57,8 +57,8 @@ N_ALP = 27
 TAILLE_BLOC = 500000
 FREQ_FR = set("easitnrul")
 VOYELLES = set("aeiouy")
-MIN_VOYELLES = 0.30
-MAX_VOYELLES = 0.55
+MIN_VOYELLES = 0.20
+MAX_VOYELLES = 0.65
 
 mots_fr = set([
     # Articles et determinants
