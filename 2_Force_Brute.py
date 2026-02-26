@@ -587,6 +587,7 @@ fin = debut + TAILLE_BLOC
 bloc = debut // TAILLE_BLOC
 
 st.markdown(f'<div class="bloc-info">🔢 Bloc {bloc}/{nb_blocs-1} — Clés : <b>{debut:0{taille_cle}d}</b> à <b>{min(fin-1, max_cle-1):0{taille_cle}d}</b> — {bloc/nb_blocs*100:.1f}% exploré</div>', unsafe_allow_html=True)
+st.info(f"⚠️ Vérifiez que la taille de clé ({taille_cle} chiffres) correspond bien à la clé utilisée pour chiffrer le message !")
 
 col1, col2, col3 = st.columns(3)
 
