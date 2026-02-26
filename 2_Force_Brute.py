@@ -136,20 +136,24 @@ def score_francais(texte):
             score += 0.1
     return round(score, 1)
 
-def afficher_barre_globale():
+def afficher_barre_globale(placeholder=None):
     pct = len(st.session_state.blocs_testes) / NB_BLOCS * 100
     segments = ""
     for b in range(NB_BLOCS):
         couleur = "#00ff88" if b in st.session_state.blocs_testes else "#ff4444"
         segments += f'<span style="display:inline-block;width:{100/NB_BLOCS:.2f}%;height:16px;background:{couleur};" title="Bloc {b}"></span>'
-    st.markdown(f"""<div style="margin:1rem 0;">
+    html = f"""<div style="margin:1rem 0;">
         <p style="color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.8rem;margin-bottom:0.3rem;">
         PROGRESSION — {pct:.1f}% ({len(st.session_state.blocs_testes)}/{NB_BLOCS} blocs)</p>
         <div style="width:100%;display:flex;border-radius:4px;overflow:hidden;border:1px solid #1e3a5f;">{segments}</div>
         <div style="display:flex;gap:1rem;margin-top:0.3rem;">
         <span style="color:#00ff88;font-family:Share Tech Mono,monospace;font-size:0.75rem;">■ Teste</span>
         <span style="color:#ff4444;font-family:Share Tech Mono,monospace;font-size:0.75rem;">■ Non teste</span>
-        </div></div>""", unsafe_allow_html=True)
+        </div></div>"""
+    if placeholder:
+        placeholder.markdown(html, unsafe_allow_html=True)
+    else:
+        st.markdown(html, unsafe_allow_html=True)
 
 def analyser_avec_progression(debut, msg, nb):
     fin = min(debut + TAILLE_BLOC, 100000000)
@@ -210,7 +214,8 @@ if "auto" not in st.session_state:
 st.markdown("<h1>🔍 FORCE BRUTE</h1>", unsafe_allow_html=True)
 st.markdown('<p style="text-align:center;color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.85rem;letter-spacing:0.2em;">DETECTION AUTOMATIQUE DE CLE</p>', unsafe_allow_html=True)
 
-afficher_barre_globale()
+barre_globale_placeholder = st.empty()
+afficher_barre_globale(barre_globale_placeholder)
 
 msg = st.text_input("Message chiffré à analyser", placeholder="Collez votre message chiffré ici...")
 nb = st.slider("Nombre de meilleurs résultats à afficher", min_value=3, max_value=20, value=5)
@@ -260,6 +265,7 @@ with col3:
             st.error("Entrez un message chiffré !")
         else:
             st.session_state.auto = not st.session_state.auto
+            st.rerun()
 
 if st.session_state.auto and msg:
     st.warning("⚙️ Mode automatique actif — cliquez STOP AUTO pour arrêter")
@@ -268,6 +274,7 @@ if st.session_state.auto and msg:
     while bloc_auto < 100000000:
         top = analyser_avec_progression(bloc_auto, msg, nb)
         st.session_state.blocs_testes.add(bloc_auto // TAILLE_BLOC)
+        afficher_barre_globale(barre_globale_placeholder)
         if top:
             st.session_state.classement_global.extend(top)
             st.session_state.classement_global.sort(reverse=True)
