@@ -435,48 +435,62 @@ def score_francais(texte):
     mots = texte.split()
     nb_mots = len(mots) if mots else 1
 
-    # Mots francais connus — gros bonus, c'est le critere principal
     nb_mots_reconnus = 0
-    for mot in mots:
-        if mot in mots_fr:
-            score += 10
-            nb_mots_reconnus += 1
+    nb_mots_longs_inconnus = 0
+    nb_lettres_seules = 0
 
-    # Bonus si la majorite des mots sont reconnus
+    for mot in mots:
+        if len(mot) == 1:
+            # Lettre seule : penaliser sauf si c est une vraie prep (a, y, en...)
+            if mot in {"a","y","en","de","le","la"}:
+                score += 1
+            else:
+                nb_lettres_seules += 1
+        elif mot in mots_fr:
+            # Vrai mot reconnu : bonus proportionnel a la longueur
+            score += 8 + len(mot) * 0.5
+            nb_mots_reconnus += 1
+        elif len(mot) <= 3:
+            score += 0.5
+        else:
+            nb_mots_longs_inconnus += 1
+
+    # Penalite forte pour chaque lettre seule isolee
+    score -= nb_lettres_seules * 3
+
+    # Penalite pour les mots longs inconnus
+    score -= nb_mots_longs_inconnus * 2
+
+    # Bonus si majorite de mots reconnus
     ratio_reconnus = nb_mots_reconnus / nb_mots
-    if ratio_reconnus >= 0.5:
-        score += 20
-    elif ratio_reconnus >= 0.3:
+    if ratio_reconnus >= 0.6:
+        score += 30
+    elif ratio_reconnus >= 0.4:
+        score += 15
+    elif ratio_reconnus >= 0.2:
         score += 5
 
-    # Bigrammes frequents en francais — bonus modere
-    bigrammes_fr = {"ou","en","an","on","es","er","ai","oi","au","eu","in","un","ie","et","il","el","ar","or","qu","ch","nt","re","le","de","me","ne","se","te","ve"}
+    # Bigrammes frequents
+    bigrammes_fr = {"ou","en","an","on","es","er","ai","oi","au","eu","in","un","ie","et","il","el","ar","or","qu","ch","nt","re","le","de","me","ne","se","te","ve","ai","ur","us","om","am"}
     for i in range(len(texte)-1):
         if texte[i:i+2] in bigrammes_fr:
-            score += 0.2
+            score += 0.15
 
-    # Penaliser fortement les mots inconnus longs (probablement du bruit)
+    # Penaliser suites de 3+ consonnes
     consonnes = set("bcdfghjklmnpqrstvwxyz")
-    for mot in mots:
-        if len(mot) > 3 and mot not in mots_fr:
-            score -= 2
-        if len(mot) > 2 and not any(v in mot for v in "aeiouy"):
-            score -= 3
-
-    # Penaliser les suites de 3+ consonnes
     suite = 0
     for c in texte:
         if c in consonnes:
             suite += 1
             if suite >= 3:
-                score -= 1
+                score -= 1.5
         else:
             suite = 0
 
-    # Lettres frequentes — petit bonus residuel
-    for c in texte:
-        if c in FREQ_FR:
-            score += 0.05
+    # Penaliser mots sans voyelle de 3+ lettres
+    for mot in mots:
+        if len(mot) > 2 and not any(v in mot for v in "aeiouy"):
+            score -= 4
 
     return round(max(0, score), 1)
 
