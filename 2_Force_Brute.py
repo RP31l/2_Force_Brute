@@ -499,7 +499,7 @@ def score_francais(texte):
         if len(mot) >= 4 and not any(v in mot for v in "aeiouy"):
             score -= 5
 
-    return round(max(0, score), 1)
+    return round(score, 1)
 
 def afficher_barre_globale(placeholder, nb_blocs):
     pct = len(st.session_state.blocs_testes) / nb_blocs * 100 if nb_blocs > 0 else 0
