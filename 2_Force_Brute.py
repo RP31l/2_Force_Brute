@@ -84,7 +84,7 @@ mots_fr = set([
     "pain","lait","fromage","viande","fruit","legume","gateau","sucre","sel",
     "table","chaise","lit","porte","fenetre","mur","sol","plafond","escalier",
     "voiture","velo","bus","train","avion","bateau","moto","main","tete",
-    "bras","jambe","oeil","nez","bouche","oreille","dos","ventre",
+    "bras","jambe","oeil","nez","bouche","oreille","dos","ventre","salut",
     "livre","cahier","stylo","crayon","gomme","regle","cartable","sac",
     "telephone","ordinateur","television","radio","internet","message","photo",
     "sport","football","basket","tennis","natation","course","danse","musique",
