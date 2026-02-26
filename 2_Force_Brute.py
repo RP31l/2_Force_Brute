@@ -55,8 +55,8 @@ label { color: #ffffff !important; font-size: 0.85rem !important; letter-spacing
 alp = "abcdefghijklmnopqrstuvwxyz "
 ALP_IDX = {c: i for i, c in enumerate(alp)}
 N_ALP = 27
-TAILLE_BLOC = 100000
-NB_BLOCS = 1000
+TAILLE_BLOC = 500000
+NB_BLOCS = 200
 FREQ_FR = set("easitnrul")
 VOYELLES = set("aeiouy")
 # En français : entre 35% et 50% de voyelles
@@ -162,7 +162,7 @@ def analyser_avec_progression(debut, msg, nb):
         s = score_francais(texte)
         if s > 0:
             resultats.append((s, cle, texte))
-        if idx % 5000 == 0:
+        if idx % 25000 == 0:
             pct = idx / total
             barre.progress(pct)
             info.markdown(f"<p style='color:#8a9ab0;font-size:0.8rem;font-family:Share Tech Mono,monospace;'>Cle {cle_int:08d} — {pct*100:.1f}% — {len(resultats)} resultats</p>", unsafe_allow_html=True)
@@ -187,6 +187,7 @@ if "bloc_debut" not in st.session_state:
     st.session_state.bloc_debut = 1
 
 # ── INTERFACE ────────────────────────────────────────────────────────────────
+afficher_barre_globale()
 st.markdown("<h1>🔍 FORCE BRUTE</h1>", unsafe_allow_html=True)
 st.markdown('<p style="text-align:center;color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.85rem;letter-spacing:0.2em;">DETECTION AUTOMATIQUE DE CLE</p>', unsafe_allow_html=True)
 
@@ -219,6 +220,7 @@ with col1:
             st.session_state.auto = False
             st.session_state.bloc_debut = debut
             top = analyser_avec_progression(debut, msg, nb)
+            st.session_state.blocs_testes.add(debut // TAILLE_BLOC)
             st.success("✅ 100 000 clés testées !")
             afficher_resultats(top)
 
@@ -231,6 +233,7 @@ with col2:
             prochain = debut + TAILLE_BLOC
             st.session_state.bloc_debut = prochain
             top = analyser_avec_progression(prochain, msg, nb)
+            st.session_state.blocs_testes.add(prochain // TAILLE_BLOC)
             st.success(f"✅ Bloc {prochain // TAILLE_BLOC} testé !")
             afficher_resultats(top)
 
@@ -243,6 +246,17 @@ with col3:
 
 if "classement_global" not in st.session_state:
     st.session_state.classement_global = []
+
+if "blocs_testes" not in st.session_state:
+    st.session_state.blocs_testes = set()
+
+def afficher_barre_globale():
+    pct = len(st.session_state.blocs_testes) / NB_BLOCS * 100
+    segments = ""
+    for b in range(NB_BLOCS):
+        couleur = "#00ff88" if b in st.session_state.blocs_testes else "#ff4444"
+        segments += f'<span style="display:inline-block;width:{100/NB_BLOCS:.3f}%;height:16px;background:{couleur};" title="Bloc {b}"></span>'
+    st.markdown(f"""<div style="margin:1rem 0;"><p style="color:#8a9ab0;font-family:Share Tech Mono,monospace;font-size:0.8rem;margin-bottom:0.3rem;">PROGRESSION — {pct:.1f}% ({len(st.session_state.blocs_testes)}/{NB_BLOCS} blocs)</p><div style="width:100%;display:flex;border-radius:4px;overflow:hidden;border:1px solid #1e3a5f;">{segments}</div><div style="display:flex;gap:1rem;margin-top:0.3rem;"><span style="color:#00ff88;font-family:Share Tech Mono,monospace;font-size:0.75rem;">■ Teste</span><span style="color:#ff4444;font-family:Share Tech Mono,monospace;font-size:0.75rem;">■ Non teste</span></div></div>""", unsafe_allow_html=True)
 
 if st.session_state.auto and msg:
     st.warning("⚙️ Mode automatique actif — cliquez STOP AUTO pour arrêter")
@@ -262,6 +276,7 @@ if st.session_state.auto and msg:
                     st.markdown(f'<div class="result-found">🥇 Clé : <b>{cle}</b> <span class="score-badge">Score {score}</span><br>{res}</div>', unsafe_allow_html=True)
                 else:
                     st.markdown(f'<div class="result-normal">#{i+1} Clé : {cle} | Score {score} | {res}</div>', unsafe_allow_html=True)
+        st.session_state.blocs_testes.add(bloc_auto // TAILLE_BLOC)
         bloc_auto += TAILLE_BLOC
         st.session_state.bloc_debut = bloc_auto
 
