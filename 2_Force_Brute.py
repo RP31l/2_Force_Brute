@@ -60,7 +60,7 @@ NB_BLOCS = 200
 FREQ_FR = set("easitnrul")
 VOYELLES = set("aeiouy")
 MIN_VOYELLES = 0.30
-MAX_VOYELLES = 0.55
+MAX_VOYELLES = 0.60
 
 mots_fr = set([
     "le","la","les","de","du","des","un","une","et","est","en","au","aux",
